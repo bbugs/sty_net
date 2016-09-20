@@ -5,4 +5,5 @@
 .idea/*
 *.mat
 */sandbox*
+*.pyc
 net/multimodal/sandbox/*
