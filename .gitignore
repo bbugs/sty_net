@@ -1,0 +1,8 @@
+.DS_Store
+*.swp
+*.jpg
+*.png
+.idea/*
+*.mat
+*/sandbox*
+net/multimodal/sandbox/*
