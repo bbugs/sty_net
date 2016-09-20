@@ -1,9 +1,9 @@
-from cs231n.multimodal.data_provider.json_data import JsonFile, check_img_ids
-from cs231n.multimodal.data_provider.cnn_data import CnnData, check_num_regions
-from cs231n.multimodal.data_provider.vocab_data import Vocabulary
-from cs231n.multimodal.data_provider.word2vec_data import Word2VecData
+from net.multimodal.data_provider.json_data import JsonFile, check_img_ids
+from net.multimodal.data_provider.cnn_data import CnnData, check_num_regions
+from net.multimodal.data_provider.vocab_data import Vocabulary
+from net.multimodal.data_provider.word2vec_data import Word2VecData
 import numpy as np
-from cs231n.multimodal import multimodal_utils
+from net.multimodal import multimodal_utils
 
 
 class ExperimentData(object):

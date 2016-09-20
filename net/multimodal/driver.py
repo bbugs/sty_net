@@ -1,18 +1,18 @@
 
 import logging
 import time
-from cs231n.multimodal.data_provider.experiment_data import get_batch_data, get_eval_data
-from cs231n.multimodal.multimodal_solver import MultiModalSolver
-from cs231n.multimodal import experiment
+from net.multimodal.data_provider.experiment_data import get_batch_data, get_eval_data
+from net.multimodal.multimodal_solver import MultiModalSolver
+from net.multimodal import experiment
 from sqlalchemy.pool import StaticPool
-# from cs231n.multimodal import data_config
+# from net.multimodal import data_config
 import argparse
 import threading
 import Queue
 from sqlalchemy import create_engine, desc, func
 from sqlalchemy.orm import sessionmaker
 
-from cs231n.multimodal.experiment_db.experiment_db_setup import Base, Experiment
+from net.multimodal.experiment_db.experiment_db_setup import Base, Experiment
 # https://docs.python.org/3/library/queue.html
 # http://docs.sqlalchemy.org/en/latest/dialects/sqlite.html#threading-pooling-behavior
 
@@ -54,9 +54,9 @@ def main(args):
 
     global_config = vars(args)
 
-    # get list of experiment conditions
+    # get list of experiment conditions  # get all configs not done sorted by priority
     exp_configs_list = []
-    configs = SESSION.query(Experiment).filter_by(done=False).order_by(desc(Experiment.priority))  # get all configs not done sorted by priority
+    configs = SESSION.query(Experiment).filter_by(done=False).order_by(desc(Experiment.priority))
     # todo: add status
     for c in configs:
         d = vars(c)  # convert to dictionary
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     # root path
-    parser.add_argument('--root_path', dest='root_path', type=str, default='../../../../DeepFashion/')
+    parser.add_argument('--root_path', dest='root_path', type=str, default='../data/')
     args = parser.parse_args()
     root_path = args.root_path
 
@@ -107,50 +107,50 @@ if __name__ == "__main__":
 
     # Image CNN (Full Image + Regions) features
     parser.add_argument('--cnn_regions_path', dest='cnn_regions_path', type=str,
-                        default=root_path + 'data/fashion53k/img_regions/4_regions_cnn/per_split/')
+                        default=root_path + '/fashion53k/img_regions/4_regions_cnn/per_split/')
 
     parser.add_argument('--cnn_regions_path_train', dest='cnn_regions_path_train', type=str,
-                        default=root_path + 'data/fashion53k/img_regions/4_regions_cnn/per_split/cnn_fc7_train.txt')
+                        default=root_path + '/fashion53k/img_regions/4_regions_cnn/per_split/cnn_fc7_train.txt')
 
     parser.add_argument('--cnn_regions_path_val', dest='cnn_regions_path_val', type=str,
-                        default=root_path + 'data/fashion53k/img_regions/4_regions_cnn/per_split/cnn_fc7_val.txt')
+                        default=root_path + '/fashion53k/img_regions/4_regions_cnn/per_split/cnn_fc7_val.txt')
 
     parser.add_argument('--cnn_regions_path_test', dest='cnn_regions_path_test', type=str,
-                        default=root_path + 'data/fashion53k/img_regions/4_regions_cnn/per_split/cnn_fc7_test.txt')
+                        default=root_path + '/fashion53k/img_regions/4_regions_cnn/per_split/cnn_fc7_test.txt')
 
     # Image CNN (Full Image only) features
     # TODO: Make cnn features for full images only
     # TODO: see where num_regions apply
     parser.add_argument('--cnn_full_img_path', dest='cnn_full_img_path', type=str,
-                        default=root_path + '/data/fashion53k/full_img/per_split/')
+                        default=root_path + '/fashion53k/full_img/per_split/')
 
     parser.add_argument('--cnn_full_img_path_train', dest='cnn_full_img_path_train', type=str,
-                        default=root_path + '/data/fashion53k/full_img/per_split/cnn_fc7_train.txt')
+                        default=root_path + '/fashion53k/full_img/per_split/cnn_fc7_train.txt')
 
     parser.add_argument('--cnn_full_img_path_val', dest='cnn_full_img_path_val', type=str,
-                        default=root_path + '/data/fashion53k/full_img/per_split/cnn_fc7_val.txt')
+                        default=root_path + '/fashion53k/full_img/per_split/cnn_fc7_val.txt')
 
     parser.add_argument('--cnn_full_img_path_test', dest='cnn_full_img_path_test', type=str,
-                        default=root_path + '/data/fashion53k/full_img/per_split/cnn_fc7_test.txt')
+                        default=root_path + '/fashion53k/full_img/per_split/cnn_fc7_test.txt')
 
     # Json files with text
     parser.add_argument('--json_path', dest='json_path', type=str,
-                        default=root_path + 'data/fashion53k/json/with_ngrams/')
+                        default=root_path + '/fashion53k/json/with_ngrams/')
 
     parser.add_argument('--json_path_train', dest='json_path_train', type=str,
-                        default=root_path + '/data/fashion53k/json/with_ngrams/dataset_dress_all_train.clean.json')
+                        default=root_path + '/fashion53k/json/with_ngrams/dataset_dress_all_train.clean.json')
 
     parser.add_argument('--json_path_val', dest='json_path_val', type=str,
-                        default=root_path + '/data/fashion53k/json/with_ngrams/dataset_dress_all_val.clean.json')
+                        default=root_path + '/fashion53k/json/with_ngrams/dataset_dress_all_val.clean.json')
 
     parser.add_argument('--json_path_test', dest='json_path_test', type=str,
-                        default=root_path + '/data/fashion53k/json/with_ngrams/dataset_dress_all_test.clean.json')
+                        default=root_path + '/fashion53k/json/with_ngrams/dataset_dress_all_test.clean.json')
 
     # Word2vec vectors and vocab
     parser.add_argument('--word2vec_vocab', dest='word2vec_vocab', type=str,
-                        default=root_path + '/data/word_vects/glove/vocab.txt')
+                        default=root_path + '/word_vects/glove/vocab.txt')
     parser.add_argument('--word2vec_vectors', dest='word2vec_vectors', type=str,
-                        default=root_path + '/data/word_vects/glove/vocab_vecs.txt')
+                        default=root_path + '/word_vects/glove/vocab_vecs.txt')
 
     # External vocabulary
     parser.add_argument('--external_vocab', dest='external_vocab', type=str,
@@ -169,7 +169,7 @@ if __name__ == "__main__":
 
     # path to save checkpoints and reports
     parser.add_argument('--checkpoint_path', dest='checkpoint_path', type=str,
-                        default=root_path + '/data/fashion53k/experiment_results/')
+                        default=root_path + '/fashion53k/experiment_results/')
 
     # path to experiment.db
     parser.add_argument('--experiment_db', dest='experiment_db', type=str,
@@ -212,7 +212,8 @@ if __name__ == "__main__":
     print "connecting to database"
     db_name = 'sqlite:///' + GLOBAL_CONFIG['experiment_db']
     engine = create_engine(db_name, echo=False,
-                           connect_args={'check_same_thread': False}, poolclass=StaticPool)
+                           connect_args={'check_same_thread': False},
+                           poolclass=StaticPool)  # make session available to threads
     Base.metadata.bind = engine
     DBSession = sessionmaker(bind=engine)
     SESSION = DBSession()

@@ -4,7 +4,7 @@ import json
 import collections
 import linecache
 
-from cs231n.multimodal.data_provider.vocab_data import Vocabulary
+from net.multimodal.data_provider.vocab_data import Vocabulary
 
 
 class Word2VecData(object):

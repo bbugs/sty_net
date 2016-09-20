@@ -1,14 +1,14 @@
 
 import logging
 import time
-from cs231n.multimodal.data_provider.experiment_data import BatchData, EvaluationData
-from cs231n.multimodal.data_provider.cnn_data import CnnData
-from cs231n.multimodal.data_provider.word2vec_data import Word2VecData
-from cs231n.multimodal import multimodal_net
-from cs231n.multimodal.multimodal_solver import MultiModalSolver
+from net.multimodal.data_provider.experiment_data import BatchData, EvaluationData
+from net.multimodal.data_provider.cnn_data import CnnData
+from net.multimodal.data_provider.word2vec_data import Word2VecData
+from net.multimodal import multimodal_net
+from net.multimodal.multimodal_solver import MultiModalSolver
 
-from cs231n.multimodal.data_provider.data_tests import test_data_config
-from cs231n.multimodal import multimodal_utils
+from net.multimodal.data_provider.data_tests import test_data_config
+from net.multimodal import multimodal_utils
 import math
 
 ##############################################

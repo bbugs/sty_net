@@ -4,12 +4,12 @@ susy_code_bare_bones/check_python_cost.m
 """
 
 import os
-from cs231n.multimodal import multimodal_net
+from net.multimodal import multimodal_net
 import numpy as np
 import math
-from cs231n.layers import *
+from net.layers import *
 import scipy.io as sio
-from cs231n.tests import test_utils
+from net.tests import test_utils
 
 rpath = '../../nips2014_karpathy/susy_code_bare_bones/'
 

@@ -1,5 +1,5 @@
 import pickle
-from cs231n.multimodal.data_provider.data_tests import test_data_config
+from net.multimodal.data_provider.data_tests import test_data_config
 
 # ckpoint_path = test_data_config.exp_config['checkpoint_path']
 

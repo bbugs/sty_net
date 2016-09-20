@@ -2,12 +2,12 @@
 Test MultiModalNet against numerical gradient and finetuning
 """
 
-from cs231n.multimodal import multimodal_net
+from net.multimodal import multimodal_net
 import numpy as np
 import math
-from cs231n.gradient_check import eval_numerical_gradient
-from cs231n.tests.test_utils import rel_error, mk_random_pair_id
-from cs231n.layers import *
+from net.gradient_check import eval_numerical_gradient
+from net.tests.test_utils import rel_error, mk_random_pair_id
+from net.layers import *
 
 
 ####################################################################

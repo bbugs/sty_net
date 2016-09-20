@@ -3,8 +3,8 @@ Write some tests for the functions in layers
 
 """
 import numpy as np
-from cs231n import layers, gradient_check
-from cs231n.tests import test_utils
+from net import layers, gradient_check
+from net.tests import test_utils
 
 __author__ = "Susana Zoghbi"
 

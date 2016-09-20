@@ -1,7 +1,7 @@
 
-from cs231n.multimodal.data_provider.cnn_data import CnnData
-from cs231n.multimodal.data_provider.word2vec_data import Word2VecData
-from cs231n.multimodal import multimodal_net
+from net.multimodal.data_provider.cnn_data import CnnData
+from net.multimodal.data_provider.word2vec_data import Word2VecData
+from net.multimodal import multimodal_net
 import math
 
 

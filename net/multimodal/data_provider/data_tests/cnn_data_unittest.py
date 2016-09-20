@@ -1,10 +1,10 @@
 
-from cs231n.multimodal.data_provider.cnn_data import CnnData, check_num_regions
-from cs231n.multimodal.data_provider.data_tests import test_data_config
-from cs231n.multimodal import multimodal_utils
+from net.multimodal.data_provider.cnn_data import CnnData, check_num_regions
+from net.multimodal.data_provider.data_tests import test_data_config
+from net.multimodal import multimodal_utils
 import numpy as np
 
-from cs231n.multimodal import multimodal_utils
+from net.multimodal import multimodal_utils
 
 json_fname = test_data_config.exp_config['json_path_test']
 cnn_fname = test_data_config.exp_config['cnn_regions_path_test']

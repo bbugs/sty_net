@@ -1,7 +1,7 @@
-from cs231n.multimodal.data_provider.experiment_data import EvaluationData
+from net.multimodal.data_provider.experiment_data import EvaluationData
 
-from cs231n.multimodal.data_provider.data_tests import test_data_config
-from cs231n.multimodal import multimodal_utils
+from net.multimodal.data_provider.data_tests import test_data_config
+from net.multimodal import multimodal_utils
 
 json_fname = test_data_config.exp_config['json_path_test']
 cnn_fname = test_data_config.exp_config['cnn_regions_path_test']

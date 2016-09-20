@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 import pickle
 import numpy as np
 
-from cs231n.multimodal.experiment_db.experiment_db_setup import Base, Experiment
+from net.multimodal.experiment_db.experiment_db_setup import Base, Experiment
 # from flask.ext.sqlalchemy import SQLAlchemy
 
 engine = create_engine('sqlite:///experiments.db')

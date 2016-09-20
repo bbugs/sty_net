@@ -1,5 +1,5 @@
 import numpy as np
-from cs231n.multimodal.evaluation import metrics
+from net.multimodal.evaluation import metrics
 
 #######################################
 # Test case 1

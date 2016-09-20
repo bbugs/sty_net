@@ -1,7 +1,6 @@
 import numpy as np
 import linecache
-import json
-from cs231n.multimodal import multimodal_utils
+from net.multimodal import multimodal_utils
 
 
 def check_num_regions(cnn_fname, imgid2region_indices, verbose=False):

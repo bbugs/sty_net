@@ -1,5 +1,5 @@
 import numpy as np
-from cs231n.multimodal.data_provider.json_data import JsonFile
+from net.multimodal.data_provider.json_data import JsonFile
 import itertools
 import logging
 import pickle

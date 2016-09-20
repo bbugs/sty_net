@@ -1,12 +1,10 @@
 import numpy as np
 import logging
-from cs231n import optim
-from cs231n.multimodal.evaluation import metrics
+from net import optim
+from net.multimodal.evaluation import metrics
 import pickle
 import time
-import os
-from cs231n.multimodal import multimodal_utils
-
+from net.multimodal import multimodal_utils
 
 
 class MultiModalSolver(object):

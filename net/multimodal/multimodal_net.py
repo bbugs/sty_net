@@ -1,14 +1,14 @@
 """
-Inspired in cs231n/classfiers/fc_net.py
+Inspired in net/classfiers/fc_net.py
 
 Implement a multimodal net
 
 """
 
 import numpy as np
-from cs231n.layers import *
-from cs231n.layer_utils import *
-from cs231n.multimodal import multimodal_utils
+from net.layers import *
+from net.layer_utils import *
+from net.multimodal import multimodal_utils
 
 
 class MultiModalNet(object):

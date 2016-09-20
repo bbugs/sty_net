@@ -1,6 +1,6 @@
 
-from cs231n.multimodal.data_provider.alignment_data import AlignmentDataV0
-from cs231n.multimodal.data_provider.data_tests import test_data_config
+from net.multimodal.data_provider.alignment_data import AlignmentDataV0
+from net.multimodal.data_provider.data_tests import test_data_config
 import numpy as np
 
 d = test_data_config.exp_config
