@@ -11,6 +11,7 @@ import threading
 import Queue
 from sqlalchemy import create_engine, desc, func
 from sqlalchemy.orm import sessionmaker
+import json
 
 from net.multimodal.experiment_db.experiment_db_setup import Base, Experiment
 # https://docs.python.org/3/library/queue.html
@@ -154,7 +155,7 @@ if __name__ == "__main__":
 
     # External vocabulary
     parser.add_argument('--external_vocab', dest='external_vocab', type=str,
-                        default=root_path + '/data/fashion53k/external_vocab/zappos.vocab.txt')
+                        default=root_path + '/fashion53k/external_vocab/zappos.vocab.txt')
 
     # target vocab (used in alignment_data.py on make_y_true_img2txt)
     # TODO: see where min_freq applies (perhaps make the clean json already remove words with less than min_freq)
@@ -204,7 +205,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     GLOBAL_CONFIG = vars(args)  # convert to ordinary dict
-    print GLOBAL_CONFIG
+    print json.dumps(GLOBAL_CONFIG, indent=2)
 
     ##############################################
     # connect to database and get the top priority configurations
@@ -223,6 +224,7 @@ if __name__ == "__main__":
     ##############################################
     fname = GLOBAL_CONFIG['checkpoint_path'] + '{}_experiment.log.txt'.format(time.strftime('%Y_%m_%d_%H%M'))
     logging.basicConfig(filename=fname, level=logging.INFO)
+    logging.info(json.dumps(GLOBAL_CONFIG, indent=2))
 
     # Build constant data
     BATCH_DATA = get_batch_data(GLOBAL_CONFIG, subset_num_items=20)  # TODO: change to -1
