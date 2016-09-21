@@ -153,7 +153,7 @@ class MultiModalSolver(object):
         # Make a minibatch of training data
 
         X_img_batch, X_txt_batch, region2pair_id, word2pair_id =\
-            self.batch_data.get_minibatch(batch_size=self.batch_size, verbose=True)  # TODO: chance verbose to False if you dont want to see the img_ids from the minibatch
+            self.batch_data.get_minibatch(batch_size=self.batch_size, verbose=False)  # TODO: change verbose to False if you dont want to see the img_ids from the minibatch
 
         # Compute loss and gradient
         loss, grads = self.model.loss(X_img_batch, X_txt_batch,
