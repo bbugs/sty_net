@@ -4,7 +4,7 @@ exp_config = {}
 
 # assume all data has been precomputed in dc['root_path']
 exp_config['root_path'] = root_path = '../'  # assume module is run from Chapter4
-exp_config['id']
+exp_config['id'] = 0
 
 # Image CNN (Full Image + Regions) features
 exp_config['num_regions_per_img'] = 4 + 1
