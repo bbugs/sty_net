@@ -3,7 +3,8 @@
 exp_config = {}
 
 # assume all data has been precomputed in dc['root_path']
-exp_config['root_path'] = root_path = '../../../../DeepFashion/'  # assume module is run from assignment2
+exp_config['root_path'] = root_path = '../'  # assume module is run from Chapter4
+exp_config['id']
 
 # Image CNN (Full Image + Regions) features
 exp_config['num_regions_per_img'] = 4 + 1
@@ -39,7 +40,7 @@ exp_config['test_vocab'] = root_path + '/fashion53k/vocab_per_split/vocab_test_m
 exp_config['target_vocab_fname'] = exp_config['test_vocab']  #TODO:I think this is unused, but I can use it for img2txt
 
 # path to save checkpoints and reports
-exp_config['checkpoint_path'] = root_path + '/data/fashion53k/experiment_results/'
+exp_config['checkpoint_path'] = root_path + '/data/fashion53k/sandbox_results/'
 
 
 ####################################################################
