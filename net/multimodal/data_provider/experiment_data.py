@@ -36,33 +36,7 @@ class BatchData(ExperimentData):
         ExperimentData.__init__(self, json_fname, cnn_fname, img_id2cnn_region_indeces,
                                 w2v_vocab_fname, w2v_vectors_fname, subset_num_items)
 
-        # self.X_txt = np.array([])
-        # self.X_img = np.array([])
-        # self.region2pair_id = np.array([])
-        # self.word2pair_id = np.array([])
-
         return
-
-    # def make_region2pair_id(self):
-    #
-    #     if isinstance(self.num_regions_per_img, int):
-    #         self.region2pair_id = np.zeros((len(self.img_ids) * self.num_regions_per_img,), dtype=int)
-    #
-    #         region_index = 0
-    #         n = len(self.img_ids)
-    #         for i in range(n):
-    #             self.region2pair_id[region_index: region_index + self.num_regions_per_img] = i
-    #             region_index += self.num_regions_per_img
-    #
-    #     elif isinstance(self.num_regions_per_img, dict):
-    #         # self.num_regions_per_img[img_id] = list of indices in the cnn file
-    #         region_index = 0
-    #         i = 0
-    #         for img_id in self.img_ids:
-    #             n_regions_in_img_id = self.num_regions_per_img[img_id]
-    #             self.region2pair_id[region_index: region_index + n_regions_in_img_id] = i
-    #             region_index += n_regions_in_img_id
-    #             i += 1
 
     def make_region2pair_id(self, img_ids):
 
@@ -82,10 +56,9 @@ class BatchData(ExperimentData):
 
         return region2pair_id
 
-    def get_minibatch(self, batch_size, verbose=False, seed=None):
+    def get_minibatch(self, batch_size, verbose=False):
 
-        # Randomly select img_ids from json file
-        img_ids = self.json_file.get_random_img_ids(batch_size, seed=seed)
+        img_ids = self.json_file.get_random_img_ids(batch_size)
 
         if verbose:
             print "img_ids \n", img_ids

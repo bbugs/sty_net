@@ -153,7 +153,7 @@ class MultiModalSolver(object):
         # Make a minibatch of training data
 
         X_img_batch, X_txt_batch, region2pair_id, word2pair_id =\
-            self.batch_data.get_minibatch(batch_size=self.batch_size)
+            self.batch_data.get_minibatch(batch_size=self.batch_size, verbose=True)
 
         # Compute loss and gradient
         loss, grads = self.model.loss(X_img_batch, X_txt_batch,
@@ -233,11 +233,6 @@ class MultiModalSolver(object):
 
         # Maybe subsample the data
         N = X.shape[0]
-        if num_samples is not None and N > num_samples:
-            mask = np.random.choice(N, num_samples)
-            N = num_samples
-            X = X[mask]
-            y = y[mask]
 
         # Compute predictions in batches
         num_batches = N / batch_size

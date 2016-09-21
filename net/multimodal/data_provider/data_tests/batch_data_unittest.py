@@ -14,6 +14,12 @@ w2v_vectors_fname = test_data_config.exp_config['word2vec_vectors']
 
 batch_data = BatchData(json_fname, cnn_fname, imgid2region_indices, w2v_vocab_fname, w2v_vectors_fname)
 
-X_img, X_txt, region2pair_id, word2pair_id = batch_data.get_minibatch(batch_size=5, seed=42, verbose=True)
+X_img, X_txt, region2pair_id, word2pair_id = batch_data.get_minibatch(batch_size=5, verbose=True)
 
+
+X_img2, X_txt2, region2pair_id2, word2pair_id2 = batch_data.get_minibatch(batch_size=5, verbose=True, seed=None)
+
+X_img3, X_txt3, region2pair_id3, word2pair_id3 = batch_data.get_minibatch(batch_size=5, verbose=True, seed=None)
+
+X_img4, X_txt4, region2pair_id4, word2pair_id4 = batch_data.get_minibatch(batch_size=5, verbose=True, seed=None)
 # TODO: extend tests with asserts
