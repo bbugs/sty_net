@@ -3,6 +3,7 @@ import collections
 import numpy as np
 import os
 import random
+from net.multimodal.data_provider import vocab_data
 
 
 def check_img_ids(json_fname, imgid2region_indices):
@@ -27,6 +28,7 @@ class JsonFile(object):
             self.img_ids = []
             self.img_id2json_index = {}  # dict[img_id] = json_index
             self.img_id2cnn_region_index = {}  # dict[img_id]= list of region indices of cnn file
+            self.word2img_ids_index = {}  # index word and list of image ids that contain the word
             if num_items > 0:  # get the first num_items if needed
                 self.dataset_items = self.dataset['items'][0: num_items]
 
@@ -191,6 +193,27 @@ class JsonFile(object):
 
     def get_num_vocab_words_from_json(self, min_word_freq=5):
         return len(self.get_vocab_words_from_json(min_word_freq=min_word_freq))
+
+    def _set_word2img_ids_index(self, min_word_freq=5):
+
+        # make sure img_ids have been set
+        if len(self.img_ids) == 0:
+            self.set_img_ids()
+
+        vocab = set(self.get_vocab_words_from_json(min_word_freq=min_word_freq))
+
+        for img_id in self.img_ids:
+            words = [w for w in self.get_word_list_of_img_id(img_id) if w in vocab]
+            for w in words:
+                if w not in self.word2img_ids_index:
+                    self.word2img_ids_index[w] = []
+                self.word2img_ids_index[w].append(img_id)
+        return
+
+    def get_word2img_ids_index(self, min_word_freq=5):
+        if len(self.word2img_ids_index) == 0:
+            self._set_word2img_ids_index(min_word_freq=min_word_freq)
+        return self.word2img_ids_index
 
     # TODO: Implement:
     # get_num_tokens_in_json
