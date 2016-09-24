@@ -77,7 +77,7 @@ class BatchData(ExperimentData):
             # add to self.word2pair_id
             n_words = len(words_in_img)
             pair_ids = counter * np.ones(n_words, dtype=int)
-            word2pair_id = np.hstack((word2pair_id, pair_ids))
+            word2pair_id = np.hstack((word2pair_id, pair_ids))  #todo: check if this is right?
             counter += 1
 
             # add words to words_in_batch
