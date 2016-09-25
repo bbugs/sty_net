@@ -3,6 +3,7 @@ import collections
 import numpy as np
 import os
 import random
+import pickle
 from net.multimodal.data_provider import vocab_data
 
 
@@ -210,9 +211,15 @@ class JsonFile(object):
                 self.word2img_ids_index[w].append(img_id)
         return
 
-    def get_word2img_ids_index(self, min_word_freq=5):
+    def get_word2img_ids_index(self, min_word_freq=5, save_fname=None):
+
+        if save_fname is not None and os.path.isfile(save_fname):
+            return pickle.load(open(save_fname, 'rb'))
+
         if len(self.word2img_ids_index) == 0:
             self._set_word2img_ids_index(min_word_freq=min_word_freq)
+        if save_fname is not None:
+            pickle.dump(self.word2img_ids_index, open(save_fname, 'wb'))
         return self.word2img_ids_index
 
     # TODO: Implement:
