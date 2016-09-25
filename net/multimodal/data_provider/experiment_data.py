@@ -138,7 +138,7 @@ class EvaluationData(ExperimentData):
         num_regions_in_split = 0
         for img_id in img_ids:
             num_regions_in_split += len(self.img_id2cnn_region_indeces[img_id])
-
+        # TODO: check that y_true_txt2img is correctly implemented
         self.y_true_txt2img = -np.ones((len(external_vocab), num_regions_in_split), dtype=int)
         self.X_img = np.zeros((num_regions_in_split, self.cnn_data.get_cnn_dim()))
 
