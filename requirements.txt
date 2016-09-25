@@ -44,3 +44,4 @@ tornado==4.3
 traitlets==4.0.0
 wsgiref==0.1.2
 SQLAlchemy==1.0.15
+scikit-learn==0.17.1
