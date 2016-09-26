@@ -77,7 +77,6 @@ class BatchData(ExperimentData):
 
     def _mk_word2pair_id(self):
 
-        self.word2pair_id = np.zeros(len(self.word_seq), dtype=int)
         counter = 0
         for img_id in self.img_ids:
             n_words_in_img = len(self.img_ids2words[img_id])
