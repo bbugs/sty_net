@@ -154,7 +154,7 @@ if __name__ == '__main__':
     #
     # print y2pair_id(yy, N=3)
 
-    from cs231n.multimodal.data_provider.data_tests import test_data_config
+    from net.multimodal.data_provider.data_tests import test_data_config
 
     fname = test_data_config.exp_config['json_path_test']
     imgid2regionind = mk_toy_img_id2region_indices(json_fname=fname, num_regions_per_img=5, subset_num_items=3)
