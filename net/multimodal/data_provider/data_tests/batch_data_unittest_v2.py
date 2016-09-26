@@ -17,7 +17,7 @@ imgid2region_indices = multimodal_utils.mk_toy_img_id2region_indices(json_fname,
 w2v_vocab_fname = test_data_config.exp_config['word2vec_vocab']
 w2v_vectors_fname = test_data_config.exp_config['word2vec_vectors']
 
-batch_data = BatchData(json_fname, cnn_fname, imgid2region_indices, w2v_vocab_fname, w2v_vectors_fname, subset_num_items=3)
+batch_data = BatchData(json_fname, cnn_fname, imgid2region_indices, w2v_vocab_fname, w2v_vectors_fname, subset_num_items=3)  # TODO: change subset_num_items to -1 in real experiments
 
 batch_data.mk_minibatch(batch_size=3, verbose=True, debug=True)
 # img_ids on minibatch [  6 147  80]
