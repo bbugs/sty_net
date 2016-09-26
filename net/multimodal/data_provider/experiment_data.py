@@ -36,6 +36,14 @@ class BatchData(ExperimentData):
         ExperimentData.__init__(self, json_fname, cnn_fname, img_id2cnn_region_indeces,
                                 w2v_vocab_fname, w2v_vectors_fname, subset_num_items)
 
+        self.X_img = np.array([])
+        self.X_txt = np.array([])
+        self.img_ids = []
+        self.y_local = np.array([])
+        self.img_ids2words = {}
+        self.unique_words_list = []
+
+
         return
 
     def make_region2pair_id(self, img_ids):
@@ -73,7 +81,7 @@ class BatchData(ExperimentData):
         counter = 0
         batch_region_index = 0
         for img_id in img_ids:
-            words_in_img = self.json_file.get_word_list_of_img_id(img_id)
+            words_in_img = self.json_file.get_word_list_of_img_id(img_id, remove_stops=True)
             # add to self.word2pair_id
             n_words = len(words_in_img)
             pair_ids = counter * np.ones(n_words, dtype=int)
@@ -94,6 +102,77 @@ class BatchData(ExperimentData):
         return X_img, X_txt, region2pair_id, word2pair_id
 
         # Set cnn vectors for the batch
+
+    def mk_y_local(self):
+        """
+
+        Args:
+            img_ids: list
+            img_ids2words: dict
+            unique_words_list: list
+
+        Returns:
+
+        """
+        n_imgs = len(self.img_ids)
+
+        n_regions = 0
+        for img_id in self.img_ids:
+            n_regions += len(self.img_id2cnn_region_indeces[img_id])
+
+        n_words = len(self.unique_words_list)
+        self.y_local = -np.ones((n_regions, n_words))
+
+        region_index = 0
+        for img_id in self.img_ids:
+            n_regions_in_img = len(self.img_id2cnn_region_indeces[img_id])
+            words_in_img = self.img_ids2words[img_id]
+
+            for i in range(n_regions_in_img):
+
+                for word in words_in_img:
+                    word_index = self.unique_words_list.index(word)
+                    self.y_local[region_index, word_index] = 1
+                region_index += 1
+
+
+
+    def mk_minibatch(self, batch_size, verbose=False, debug=False):
+        """
+        Args:
+            self:
+            batch_size: int
+            verbose: bool
+
+        Creates:
+            self.y_local
+            self.X_img
+            self.X_txt
+            self.region2pair_id
+            self.word2pair_id
+        Returns:
+
+        """
+
+        self.img_ids = self.json_file.get_random_img_ids(batch_size)
+        if verbose:
+            print "img_ids on minibatch", self.img_ids
+        if debug:
+            self.img_ids = sorted(self.img_ids)
+
+        self.img_ids2words = {}
+
+        unique_words = set()
+        for img_id in self.img_ids:
+            words_in_img = self.json_file.get_word_list_of_img_id(img_id, remove_stops=True)
+            self.img_ids2words[img_id] = words_in_img
+            unique_words.update(set(words_in_img))
+
+        self.unique_words_list = sorted(list(unique_words))
+
+        self.mk_y_local()
+
+        return
 
 
 class EvaluationData(ExperimentData):
@@ -146,7 +225,7 @@ class EvaluationData(ExperimentData):
         split_region_index = 0
         for img_id in img_ids:
             n_regions_in_img_id = len(self.img_id2cnn_region_indeces[img_id])
-            word_list = self.json_file.get_word_list_of_img_id(img_id)
+            word_list = self.json_file.get_word_list_of_img_id(img_id, remove_stops=True)
             # keep words only from the zappos (external) vocab.  These are the queries.
             word_list_external_vocab = [w for w in word_list if w in external_vocab]
             for word in word_list_external_vocab:
