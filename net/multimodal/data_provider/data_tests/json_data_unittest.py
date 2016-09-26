@@ -45,20 +45,20 @@ print json_file.get_item_from_img_id(target_img_id=476)
 # {u'asin': u'B00EC7KR14', u'url': u'http://ecx.images-amazon.com/images/I/41FQgL4OxAL.jpg', u'text': u'vogue ...
 
 print "\nwords of img id"
-words = json_file.get_word_list_of_img_id(476)
+words = json_file.get_word_list_of_img_id(img_id=476, remove_stops=True)
 print "\n", words
 print "\nnum words of img id"
 print len(words)
 
-vocab_words = json_file.get_vocab_words_from_json(min_word_freq=0)
+vocab_words = json_file.get_vocab_words_from_json(remove_stops=True, min_word_freq=0)
 print "\nvocab_words"
 print vocab_words
 print "\nnum vocab words"
-print json_file.get_num_vocab_words_from_json(min_word_freq=5)
+print json_file.get_num_vocab_words_from_json(remove_stops=True, min_word_freq=5)
 
 json_file = JsonFile(d['json_path_train'], num_items=-1)
 print "\nnum vocab words for the split"
-print json_file.get_num_vocab_words_from_json(min_word_freq=5)
+print json_file.get_num_vocab_words_from_json(remove_stops=True, min_word_freq=20)
 
 
 imgid2region_indices = multimodal_utils.mk_toy_img_id2region_indices(json_fname=d['json_path_test'],
