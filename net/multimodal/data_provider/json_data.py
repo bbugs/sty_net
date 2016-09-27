@@ -3,6 +3,10 @@ import collections
 import numpy as np
 import os
 import random
+import pickle
+from net.multimodal.data_provider import vocab_data
+import nltk
+from nltk.corpus import stopwords
 
 
 def check_img_ids(json_fname, imgid2region_indices):
@@ -27,8 +31,10 @@ class JsonFile(object):
             self.img_ids = []
             self.img_id2json_index = {}  # dict[img_id] = json_index
             self.img_id2cnn_region_index = {}  # dict[img_id]= list of region indices of cnn file
+            self.word2img_ids_index = {}  # index word and list of image ids that contain the word
             if num_items > 0:  # get the first num_items if needed
                 self.dataset_items = self.dataset['items'][0: num_items]
+            self.stop_words = set(stopwords.words('english'))
 
         return
 
@@ -89,22 +95,25 @@ class JsonFile(object):
 
         return self.dataset_items[index]
 
-    def get_word_list_of_img_id(self, img_id):
-        """
+    def get_word_list_of_img_id(self, img_id, remove_stops):
+        """(int, bool) -> list
         return a list of unique words that correspond to the img_id
         """
         item = self.get_item_from_img_id(img_id)
 
-        word_list = self.get_word_list_from_item(item)
+        word_list = self.get_word_list_from_item(item, remove_stops=remove_stops)
         return word_list
 
-    @staticmethod
-    def get_word_list_from_item(item):
-        """
+    def get_word_list_from_item(self, item, remove_stops):
+        """(dict, bool) -> list
         return a list of unique words that correspond to item
         """
         txt = item['text']
-        word_list = sorted(list(set([w.replace('\n', "") for w in txt.split(" ") if len(w) > 0])))  # avoid empty string
+        word_list = list(set([w.replace('\n', "") for w in txt.split(" ") if len(w) > 0])) # avoid empty string
+
+        if remove_stops:
+            word_list = sorted([w for w in word_list if w not in self.stop_words])
+
         return word_list
 
     # def get_text_of_img_ids(self, img_ids):
@@ -180,17 +189,47 @@ class JsonFile(object):
 
         return txt
 
-    def get_vocab_words_from_json(self, min_word_freq=5):
+    def get_vocab_words_from_json(self, remove_stops, min_word_freq=5):
         """
         Get vocab words from json sorted by freq
         """
         all_text = self.get_all_txt_from_json()
         vocab_with_counts = self.get_vocabulary_words_with_counts(all_text, min_word_freq)
-        vocab_words = [w[0] for w in vocab_with_counts if len(w[0]) > 0]  # avoid empty string
+        vocab_words = [w[0] for w in vocab_with_counts if len(w[0]) > 1]  # avoid empty string and single characters
+        if remove_stops:
+            vocab_words = [w for w in vocab_words if w not in self.stop_words]
         return vocab_words
 
-    def get_num_vocab_words_from_json(self, min_word_freq=5):
-        return len(self.get_vocab_words_from_json(min_word_freq=min_word_freq))
+    def get_num_vocab_words_from_json(self, remove_stops, min_word_freq=5):
+        return len(self.get_vocab_words_from_json(remove_stops,
+                                                  min_word_freq=min_word_freq))
+
+    def _set_word2img_ids_index(self, remove_stops, min_word_freq=5):
+
+        # make sure img_ids have been set
+        if len(self.img_ids) == 0:
+            self.set_img_ids()
+
+        vocab = set(self.get_vocab_words_from_json(remove_stops, min_word_freq=min_word_freq))
+
+        for img_id in self.img_ids:
+            words = [w for w in self.get_word_list_of_img_id(img_id, remove_stops) if w in vocab]
+            for w in words:
+                if w not in self.word2img_ids_index:
+                    self.word2img_ids_index[w] = []
+                self.word2img_ids_index[w].append(img_id)
+        return
+
+    def get_word2img_ids_index(self, remove_stops, min_word_freq=5, save_fname=None):
+
+        if save_fname is not None and os.path.isfile(save_fname):
+            return pickle.load(open(save_fname, 'rb'))
+
+        if len(self.word2img_ids_index) == 0:
+            self._set_word2img_ids_index(remove_stops, min_word_freq=min_word_freq)
+        if save_fname is not None:
+            pickle.dump(self.word2img_ids_index, open(save_fname, 'wb'))
+        return self.word2img_ids_index
 
     # TODO: Implement:
     # get_num_tokens_in_json
