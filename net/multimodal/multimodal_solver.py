@@ -154,7 +154,7 @@ class MultiModalSolver(object):
         """
         # Make a minibatch of training data
 
-        self.batch_data.mk_minibatch(batch_size=self.batch_size, verbose=True)  # TODO: chance verbose to False if you dont want to see the img_ids from the minibatch
+        self.batch_data.mk_minibatch(batch_size=self.batch_size, verbose=False)  # TODO: chance verbose to False if you dont want to see the img_ids from the minibatch
 
         # Compute loss and gradient
         loss, grads = self.model.loss(self.batch_data, eval_mode=False)
@@ -272,7 +272,7 @@ class MultiModalSolver(object):
                     logging.info("id_{} finetune_w2v has started".format(self.id))
                 has_modulation_started = True
 
-            self._step()
+            self._step()  # The magic happens here
 
             if t == 0: loss0 = self.loss_history[0]
             if self.loss_history[t] > 10 * loss0:
