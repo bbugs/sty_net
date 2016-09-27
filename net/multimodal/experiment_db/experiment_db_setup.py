@@ -49,9 +49,11 @@ class Experiment(Base):
 # insert at the end
 # ##############
 
-engine = create_engine('sqlite:///experiments.db')  # this creates the restaurant.db file
+def setup_db(db_fname='sqlite:///experiments.db'):
+    engine = create_engine(db_fname)  # this creates the restaurant.db file
 
-Base.metadata.create_all(engine)
+    Base.metadata.create_all(engine)
+    return
 
 
 # attributes or columns?

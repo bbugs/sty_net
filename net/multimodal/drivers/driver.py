@@ -4,6 +4,7 @@ import time
 from net.multimodal.data_provider.experiment_data import get_batch_data, get_eval_data
 from net.multimodal.multimodal_solver import MultiModalSolver
 from net.multimodal import experiment
+from net.multimodal.experiment_db import exp_db_populator
 from sqlalchemy.pool import StaticPool
 # from net.multimodal import data_config
 import argparse
@@ -12,6 +13,7 @@ import Queue
 from sqlalchemy import create_engine, desc, func
 from sqlalchemy.orm import sessionmaker
 import json
+import os
 
 from net.multimodal.experiment_db.experiment_db_setup import Base, Experiment
 # https://docs.python.org/3/library/queue.html
@@ -199,8 +201,10 @@ if __name__ == "__main__":
     parser.add_argument('--update_rule', dest='update_rule', type=str, default='sgd')  # update rule
     parser.add_argument('--lr_decay', dest='lr_decay', type=float, default=0.95)  # learning rate decay
 
+    parser.add_argument('--num_exps', dest='num_exps', type=int, default=48)
+
     # number of threads
-    parser.add_argument("-t", dest="num_threads", default=4, help="number of threads")
+    parser.add_argument("-t", dest="num_threads", default=1, help="number of threads")
 
     args = parser.parse_args()
 
@@ -210,8 +214,16 @@ if __name__ == "__main__":
     ##############################################
     # connect to database and get the top priority configurations
     ##############################################
+    print "creating directory to store experiment database and results"
+    # create directory to store database, and reports
+    dir_name = GLOBAL_CONFIG['checkpoint_path'] + '/{}/'.format(time.strftime('%Y_%m_%d_%H%M'))
+    GLOBAL_CONFIG['checkpoint_path'] = dir_name
+    os.mkdir(dir_name)
+
+    db_name = 'sqlite:///' + GLOBAL_CONFIG['checkpoint_path'] + GLOBAL_CONFIG['experiment_db']
+    exp_db_populator.populate_db(db_name, n_exps=GLOBAL_CONFIG['num_exps'])
+
     print "connecting to database"
-    db_name = 'sqlite:///' + GLOBAL_CONFIG['experiment_db']
     engine = create_engine(db_name, echo=False,
                            connect_args={'check_same_thread': False},
                            poolclass=StaticPool)  # make session available to threads
@@ -222,13 +234,14 @@ if __name__ == "__main__":
     ##############################################
     # Setup logger
     ##############################################
-    fname = GLOBAL_CONFIG['checkpoint_path'] + '{}_experiment.log.txt'.format(time.strftime('%Y_%m_%d_%H%M'))
+    fname = dir_name + '{}_experiment.log.txt'.format(time.strftime('%Y_%m_%d_%H%M'))
     logging.basicConfig(filename=fname, level=logging.INFO)
     logging.info(json.dumps(GLOBAL_CONFIG, indent=2))
 
     # Build constant data
+    print "building data"
     BATCH_DATA = get_batch_data(GLOBAL_CONFIG, subset_num_items=20)  # TODO: change to -1
-    EVAL_DATA_TRAIN, EVAL_DATA_VAL = get_eval_data(GLOBAL_CONFIG, subset_train=50, subset_val=25)  # TODO: change to -1
+    EVAL_DATA_TRAIN, EVAL_DATA_VAL = get_eval_data(GLOBAL_CONFIG, subset_train=20, subset_val=10)  # TODO: change to -1
     NUM_ITEMS_TRAIN = 20  # TODO: change to actual number
 
     main(args)
