@@ -77,12 +77,12 @@ class MultiModalNet(object):
         print self.params['Wsem']
 
         if use_finetune_cnn:
-            self.params['Wcnn'] = weight_scale['img'] * np.random.randn(img_input_dim, img_input_dim)
-            self.params['bcnn'] = weight_scale['img'] * np.random.randn(img_input_dim)
+            self.params['Wcnn'] = weight_scale['img'] * mm_utils.init_random_weights(img_input_dim, img_input_dim)
+            self.params['bcnn'] = weight_scale['img'] * mm_utils.init_random_weights(img_input_dim)
 
         if use_finetune_w2v:
-            self.params['Ww2v'] = weight_scale['txt'] * np.random.randn(txt_input_dim, txt_input_dim)
-            self.params['bw2v'] = weight_scale['txt'] * np.random.randn(txt_input_dim)
+            self.params['Ww2v'] = weight_scale['txt'] * mm_utils.init_random_weights(txt_input_dim, txt_input_dim)
+            self.params['bw2v'] = weight_scale['txt'] * mm_utils.init_random_weights(txt_input_dim)
 
     # def set_global_score_hyperparams(self, global_margin=40., global_scale=1., smooth_num=5.,
     #                                  global_method='maxaccum', thrglobalscore=False):
