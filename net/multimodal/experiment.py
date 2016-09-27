@@ -26,11 +26,11 @@ def set_model(exp_config):
 
     # global loss settings
     use_global = exp_config['use_global']
-    global_margin = exp_config['global_margin']
-    global_scale = exp_config['global_scale']
-    smooth_num = exp_config['smooth_num']
-    global_method = exp_config['global_method']
-    thrglobalscore = exp_config['thrglobalscore']
+    # global_margin = exp_config['global_margin']
+    # global_scale = exp_config['global_scale']
+    # smooth_num = exp_config['smooth_num']
+    # global_method = exp_config['global_method']
+    # thrglobalscore = exp_config['thrglobalscore']
 
     # associat loss settings
     use_associat = exp_config['use_associat']
@@ -55,11 +55,11 @@ def set_model(exp_config):
     # finetuning starts as false and it can be set to true inside
     # the MultiModalSolver after a number of epochs.
 
-    mm_net.set_global_score_hyperparams(global_margin=global_margin,
-                                        global_scale=global_scale,
-                                        smooth_num=smooth_num,
-                                        global_method=global_method,
-                                        thrglobalscore=thrglobalscore)
+    # mm_net.set_global_score_hyperparams(global_margin=global_margin,
+    #                                     global_scale=global_scale,
+    #                                     smooth_num=smooth_num,
+    #                                     global_method=global_method,
+    #                                     thrglobalscore=thrglobalscore)
 
     mm_net.set_local_hyperparams(local_margin=local_margin,
                                  local_scale=local_scale,
