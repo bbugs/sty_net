@@ -20,6 +20,7 @@ class Experiment(Base):
     priority = Column(Numeric(asdecimal=False))  # between 0 and 1. Initially randomly assigned
 
     reg = Column(Numeric(asdecimal=False))
+    learning_rate = Column(Numeric(asdecimal=False))
     hidden_dim = Column(Integer)
     use_finetune_cnn = Column(Boolean)
     use_finetune_w2v = Column(Boolean)
@@ -34,7 +35,6 @@ class Experiment(Base):
     use_associat = Column(Numeric(asdecimal=False))
 
     update_rule = Column(String(20))
-    learning_rate = Column(Numeric(asdecimal=False))
 
     UniqueConstraint(reg, hidden_dim, use_finetune_cnn, use_finetune_w2v,
                      use_local, use_mil,
