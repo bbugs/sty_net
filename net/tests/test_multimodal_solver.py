@@ -82,12 +82,12 @@ local_margin = test_data_config.exp_config['local_margin']
 local_scale = test_data_config.exp_config['local_scale']
 
 # global loss settings
-use_global = test_data_config.exp_config['use_global']
-global_margin = test_data_config.exp_config['global_margin']
-global_scale = test_data_config.exp_config['global_scale']
-smooth_num = test_data_config.exp_config['smooth_num']
-global_method = test_data_config.exp_config['global_method']
-thrglobalscore = test_data_config.exp_config['thrglobalscore']
+# use_global = test_data_config.exp_config['use_global']
+# global_margin = test_data_config.exp_config['global_margin']
+# global_scale = test_data_config.exp_config['global_scale']
+# smooth_num = test_data_config.exp_config['smooth_num']
+# global_method = test_data_config.exp_config['global_method']
+# thrglobalscore = test_data_config.exp_config['thrglobalscore']
 
 # associat loss settings
 use_associat = test_data_config.exp_config['use_associat']
@@ -99,13 +99,13 @@ weight_scale = {'img': std_img, 'txt': std_txt}
 
 mm_net = multimodal_net.MultiModalNet(img_input_dim, txt_input_dim, hidden_dim, weight_scale,
                                       use_finetune_cnn=False, use_finetune_w2v=False,
-                                      reg=reg, use_local=use_local, use_global=use_global,
+                                      reg=reg, use_local=use_local,
                                       use_associat=use_associat, seed=None)
 # finetuning starts as false and it can be set to true inside the MultiModalSolver after a number of epochs.
 
-mm_net.set_global_score_hyperparams(global_margin=global_margin, global_scale=global_scale,
-                                    smooth_num=smooth_num, global_method=global_method,
-                                    thrglobalscore=thrglobalscore)
+# mm_net.set_global_score_hyperparams(global_margin=global_margin, global_scale=global_scale,
+#                                     smooth_num=smooth_num, global_method=global_method,
+#                                     thrglobalscore=thrglobalscore)
 
 mm_net.set_local_hyperparams(local_margin=local_margin, local_scale=local_scale, do_mil=False)  # do_mil starts as False and it can be set to True inside MultModalSolver after an number of epochs
 

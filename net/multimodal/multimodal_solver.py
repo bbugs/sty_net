@@ -50,13 +50,15 @@ class MultiModalSolver(object):
         self.batch_data = batch_data
         self.num_items_train = num_items_train  # eval_data_train.X_img.shape[0]  # number of images in training set
 
-        self.X_img_train = eval_data_train.X_img
-        self.X_txt_train = eval_data_train.X_txt
-        self.y_true_img2txt_train = eval_data_train.y_true_img2txt
-
-        self.X_img_val = eval_data_val.X_img
-        self.X_txt_val = eval_data_val.X_txt
-        self.y_true_img2txt_val = eval_data_val.y_true_img2txt
+        self.eval_data_train = eval_data_train
+        self.eval_data_val = eval_data_val
+        # self.X_img_train = eval_data_train.X_img
+        # self.X_txt_train = eval_data_train.X_txt
+        # self.y_true_img2txt_train = eval_data_train.y_true_img2txt
+        #
+        # self.X_img_val = eval_data_val.X_img
+        # self.X_txt_val = eval_data_val.X_txt
+        # self.y_true_img2txt_val = eval_data_val.y_true_img2txt
 
         self.exp_config = exp_config
 
@@ -152,12 +154,10 @@ class MultiModalSolver(object):
         """
         # Make a minibatch of training data
 
-        X_img_batch, X_txt_batch, region2pair_id, word2pair_id =\
-            self.batch_data.get_minibatch(batch_size=self.batch_size, verbose=True)  # TODO: chance verbose to False if you dont want to see the img_ids from the minibatch
+        self.batch_data.mk_minibatch(batch_size=self.batch_size, verbose=True)  # TODO: chance verbose to False if you dont want to see the img_ids from the minibatch
 
         # Compute loss and gradient
-        loss, grads = self.model.loss(X_img_batch, X_txt_batch,
-                                      region2pair_id, word2pair_id)
+        loss, grads = self.model.loss(self.batch_data, eval_mode=False)
         self.loss_history.append(loss)
 
         # Perform a parameter update
@@ -170,7 +170,7 @@ class MultiModalSolver(object):
             self.model.params[p] = next_w
             self.optim_configs[p] = next_config
 
-    def check_performance_img2txt(self, X_img_queries, X_txt_target, y_true_img2txt):
+    def check_performance_img2txt(self, eval_data):
         """
 
         Inputs:
@@ -185,69 +185,67 @@ class MultiModalSolver(object):
         and thus measure how well the network can retrieve those visual words. But
         this function does not need to know, it just needs +1 or -1 for all region-word pairs
         """
-        sim_region_word = self.model.loss(X_img_queries, X_txt_target,
-                                          region2pair_id=None, word2pair_id=None)
+        sim_region_word = self.model.loss(eval_data, eval_mode=True)
         y_pred = np.ones(sim_region_word.shape)
         y_pred[sim_region_word < 0] = -1  # when the sim scores are < 0, classification is negative
 
-        p, r, f1 = metrics.precision_recall_f1(y_pred, y_true_img2txt, raw_scores=False)
+        p, r, f1 = metrics.precision_recall_f1(y_pred, eval_data.y, raw_scores=False)
 
         return p, r, f1
 
-    def check_performance_txt2img(self, X_img_target, X_txt_queries, y_true_txt2img):
+    # def check_performance_txt2img(self, eval_data):
+    #
+    #     """
+    #     Inputs:
+    #
+    #     - X_img_target: np array of size (n_imgs_in_target_collection, cnn_dim)
+    #     - X_txt_zappos_only: np array of size (V_zappos, word2vec_dim)
+    #     - y_true_all_vocab: np array of size (V_zappos, n_regions_in_target). The i,j element indicates
+    #     whether or not (+1,-1) the ith zappos word corresponds to the jth image.
+    #
+    #     """
+    #     sim_word_region = self.model.loss(eval_data, eval_mode=True).T
+    #     y_pred = np.ones(sim_word_region.shape)
+    #     y_pred[sim_word_region < 0] = -1  # when the sim scores are < 0, classification is negative
+    #
+    #     p, r, f1 = metrics.precision_recall_f1(y_pred, eval_data.y_true_txt2img, raw_scores=False)
+    #
+    #     return p, r, f1
 
-        """
-        Inputs:
-
-        - X_img_target: np array of size (n_imgs_in_target_collection, cnn_dim)
-        - X_txt_zappos_only: np array of size (V_zappos, word2vec_dim)
-        - y_true_all_vocab: np array of size (V_zappos, n_regions_in_target). The i,j element indicates
-        whether or not (+1,-1) the ith zappos word corresponds to the jth image.
-
-        """
-        sim_word_region = self.model.loss(X_img_target, X_txt_queries,
-                                          region2pair_id=None, word2pair_id=None).T
-        y_pred = np.ones(sim_word_region.shape)
-        y_pred[sim_word_region < 0] = -1  # when the sim scores are < 0, classification is negative
-
-        p, r, f1 = metrics.precision_recall_f1(y_pred, y_true_txt2img, raw_scores=False)
-
-        return p, r, f1
-
-    def check_accuracy(self, X, y, num_samples=None, batch_size=100):
-        """
-        Check accuracy of the model on the provided data.
-
-        Inputs:
-        - X: Array of data, of shape (N, d_1, ..., d_k)
-        - y: Array of labels, of shape (N,)
-        - num_samples: If not None, subsample the data and only test the model
-          on num_samples datapoints.
-        - batch_size: Split X and y into batches of this size to avoid using too
-          much memory.
-
-        Returns:
-        - acc: Scalar giving the fraction of instances that were correctly
-          classified by the model.
-        """
-
-        # Maybe subsample the data
-        N = X.shape[0]
-
-        # Compute predictions in batches
-        num_batches = N / batch_size
-        if N % batch_size != 0:
-            num_batches += 1
-        y_pred = []
-        for i in xrange(num_batches):
-            start = i * batch_size
-            end = (i + 1) * batch_size
-            scores = self.model.loss(X[start:end])
-            y_pred.append(np.argmax(scores, axis=1))
-        y_pred = np.hstack(y_pred)
-        acc = np.mean(y_pred == y)
-
-        return acc
+    # def check_accuracy(self, X, y, num_samples=None, batch_size=100):
+    #     """
+    #     Check accuracy of the model on the provided data.
+    #
+    #     Inputs:
+    #     - X: Array of data, of shape (N, d_1, ..., d_k)
+    #     - y: Array of labels, of shape (N,)
+    #     - num_samples: If not None, subsample the data and only test the model
+    #       on num_samples datapoints.
+    #     - batch_size: Split X and y into batches of this size to avoid using too
+    #       much memory.
+    #
+    #     Returns:
+    #     - acc: Scalar giving the fraction of instances that were correctly
+    #       classified by the model.
+    #     """
+    #
+    #     # Maybe subsample the data
+    #     N = X.shape[0]
+    #
+    #     # Compute predictions in batches
+    #     num_batches = N / batch_size
+    #     if N % batch_size != 0:
+    #         num_batches += 1
+    #     y_pred = []
+    #     for i in xrange(num_batches):
+    #         start = i * batch_size
+    #         end = (i + 1) * batch_size
+    #         scores = self.model.loss(X[start:end])
+    #         y_pred.append(np.argmax(scores, axis=1))
+    #     y_pred = np.hstack(y_pred)
+    #     acc = np.mean(y_pred == y)
+    #
+    #     return acc
 
     def train(self):
         """
@@ -315,11 +313,9 @@ class MultiModalSolver(object):
                 report['exp_config'] = self.exp_config
 
                 # Evaluate precision, recall and f1 on both tasks
-                p_i2t_t, r_i2t_t, f1_i2t_t = self.check_performance_img2txt(self.X_img_train, self.X_txt_train,
-                                                                            self.y_true_img2txt_train)
+                p_i2t_t, r_i2t_t, f1_i2t_t = self.check_performance_img2txt(self.eval_data_train)  # eval on train
 
-                p_i2t_v, r_i2t_v, f1_i2t_v = self.check_performance_img2txt(self.X_img_val, self.X_txt_val,
-                                                                            self.y_true_img2txt_val)
+                p_i2t_v, r_i2t_v, f1_i2t_v = self.check_performance_img2txt(self.eval_data_val)  # eval on val
 
                 # p_t2i_t, r_t2i_t, f1_t2i_t = self.check_performance_txt2img(self.X_img_train, self.X_txt_train,
                 #                                                             self.y_true_img2txt_train.T)

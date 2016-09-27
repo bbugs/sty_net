@@ -19,7 +19,7 @@ eval_data = EvaluationData(json_fname, cnn_fname, imgid2region_indices,
 
 print eval_data.X_img.shape
 print eval_data.X_txt.shape
-print eval_data.y_true_txt2img.shape
+print eval_data.y.shape
 print eval_data.y_true_img2txt.shape
 
 # TODO: extend tests with asserts

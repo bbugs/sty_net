@@ -61,11 +61,11 @@ exp_config['use_mil'] = False
 
 # global loss params
 exp_config['use_global'] = 0.
-exp_config['global_margin'] = 40.
-exp_config['global_scale'] = 1.  # keep constant - regulate with use_global (kept for compatiblity with matlab code)
-exp_config['smooth_num'] = 5.
-exp_config['global_method'] = 'maxaccum'  # 'sum'
-exp_config['thrglobalscore'] = False
+# exp_config['global_margin'] = 40.
+# exp_config['global_scale'] = 1.  # keep constant - regulate with use_global (kept for compatiblity with matlab code)
+# exp_config['smooth_num'] = 5.
+# exp_config['global_method'] = 'maxaccum'  # 'sum'
+# exp_config['thrglobalscore'] = False
 
 # association loss params
 exp_config['use_associat'] = 0.
@@ -83,7 +83,7 @@ exp_config['lr_decay'] = 0.95
 
 exp_config['print_every'] = 2  # print loss
 exp_config['num_epochs'] = 7
-exp_config['batch_size'] = 5
+exp_config['batch_size'] = 20
 
 
 

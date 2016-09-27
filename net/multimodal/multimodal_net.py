@@ -8,7 +8,7 @@ Implement a multimodal net
 import numpy as np
 from net.layers import *
 from net.layer_utils import *
-from net.multimodal import multimodal_utils
+from net.multimodal import multimodal_utils as mm_utils
 
 
 class MultiModalNet(object):
@@ -40,12 +40,14 @@ class MultiModalNet(object):
 
         # Initialize global score hyperparams
         self.use_global = use_global
-        self.global_margin = None
-        self.global_scale = None
-        self.global_method = None
-        self.thrglobalscore = None
-        self.smooth_num = None
-        self.non_lin_fun = None
+        if self.use_global > 0:
+            raise ValueError("current implementation does not support global loss")
+        # self.global_margin = None
+        # self.global_scale = None
+        # self.global_method = None
+        # self.thrglobalscore = None
+        # self.smooth_num = None
+        # self.non_lin_fun = None
 
         # Initalize association scores hypeparams
         self.use_associat = use_associat
@@ -64,13 +66,15 @@ class MultiModalNet(object):
         # weights and biases using the keys 'W1' and 'b1' and second layer weights #
         # and biases using the keys 'W2' and 'b2'.
 
-        if seed:
-            np.random.seed(seed)
+        # if seed:
+        #     np.random.seed(seed)
 
-        self.params['Wi2s'] = weight_scale['img'] * np.random.randn(img_input_dim, hidden_dim)
-        self.params['bi2s'] = weight_scale['img'] * np.random.randn(hidden_dim)
-        self.params['Wsem'] = weight_scale['txt'] * np.random.randn(txt_input_dim, hidden_dim)
-        self.params['bsem'] = weight_scale['txt'] * np.random.randn(hidden_dim)
+        self.params['Wi2s'] = weight_scale['img'] * np.random.rand(img_input_dim, hidden_dim)
+        self.params['bi2s'] = weight_scale['img'] * np.random.rand(hidden_dim)
+        self.params['Wsem'] = weight_scale['txt'] * np.random.rand(txt_input_dim, hidden_dim)
+        self.params['bsem'] = weight_scale['txt'] * np.random.rand(hidden_dim)
+
+        print self.params['Wsem']
 
         if use_finetune_cnn:
             self.params['Wcnn'] = weight_scale['img'] * np.random.randn(img_input_dim, img_input_dim)
@@ -80,20 +84,20 @@ class MultiModalNet(object):
             self.params['Ww2v'] = weight_scale['txt'] * np.random.randn(txt_input_dim, txt_input_dim)
             self.params['bw2v'] = weight_scale['txt'] * np.random.randn(txt_input_dim)
 
-    def set_global_score_hyperparams(self, global_margin=40., global_scale=1., smooth_num=5.,
-                                     global_method='maxaccum', thrglobalscore=False):
-        self.global_margin = global_margin
-        self.global_scale = global_scale
-        self.global_method = global_method
-        self.thrglobalscore = thrglobalscore
-        self.smooth_num = smooth_num
+    # def set_global_score_hyperparams(self, global_margin=40., global_scale=1., smooth_num=5.,
+    #                                  global_method='maxaccum', thrglobalscore=False):
+    #     self.global_margin = global_margin
+    #     self.global_scale = global_scale
+    #     self.global_method = global_method
+    #     self.thrglobalscore = thrglobalscore
+    #     self.smooth_num = smooth_num
 
     def set_local_hyperparams(self, local_margin, local_scale, do_mil):
         self.local_margin = local_margin
         self.local_scale = local_scale
         self.do_mil = do_mil
 
-    def loss_local(self, sim_region_word, y):
+    def loss_local(self, sim_region_word_local, y_local):
         """
 
         """
@@ -107,45 +111,46 @@ class MultiModalNet(object):
         local_scale = self.local_scale
         do_mil = self.do_mil
 
-        loss, d_local_scores = svm_two_classes(sim_region_word, y, delta=local_margin, do_mil=do_mil, normalize=True)
+        loss, d_local_scores = svm_two_classes(sim_region_word_local, y_local,
+                                               delta=local_margin, do_mil=do_mil, normalize=True)
 
         return loss * local_scale, d_local_scores * local_scale
 
-    def loss_global(self, sim_region_word, region2pair_id, word2pair_id):
-
-        # verify that global hyper params have been set
-        assert self.use_global > 0
-        assert self.global_margin is not None, "set global margin"
-        assert self.global_scale is not None, "set global scale"
-        assert self.global_method is not None, "set global method, either sum or maxaccum"
-        assert self.thrglobalscore is not None, "set whether you want to threshold scores at 0 ??"
-        assert self.smooth_num is not None, "set smoothing constant for global score"
-
-        global_margin = self.global_margin
-        global_scale = self.global_scale
-        global_method = self.global_method
-        thrglobalscore = self.thrglobalscore
-        smooth_num = self.smooth_num
-
-        # numbers of pairs in batch
-        N = np.max(region2pair_id) + 1
-        assert N == np.max(word2pair_id) + 1
-
-        y = np.arange(N)  # the correct pairs correspond to the diagonal elements
-
-        img_sent_score_global, SGN, img_region_with_max = global_scores_forward(sim_region_word, N, region2pair_id,
-                                                                                word2pair_id, smooth_num,
-                                                                                thrglobalscore=thrglobalscore,
-                                                                                global_method=global_method)
-
-        loss, d_global_scores = svm_struct_loss(img_sent_score_global, y, delta=global_margin, avg=False)
-
-        d_local_scores = global_scores_backward(d_global_scores, N, sim_region_word,
-                                                region2pair_id, word2pair_id, SGN,
-                                                img_region_with_max,
-                                                global_method=global_method, thrglobalscore=thrglobalscore)
-
-        return loss * global_scale, d_local_scores * global_scale
+    # def loss_global(self, sim_region_word, region2pair_id, word2pair_id):
+    #
+    #     # verify that global hyper params have been set
+    #     assert self.use_global > 0
+    #     assert self.global_margin is not None, "set global margin"
+    #     assert self.global_scale is not None, "set global scale"
+    #     assert self.global_method is not None, "set global method, either sum or maxaccum"
+    #     assert self.thrglobalscore is not None, "set whether you want to threshold scores at 0 ??"
+    #     assert self.smooth_num is not None, "set smoothing constant for global score"
+    #
+    #     global_margin = self.global_margin
+    #     global_scale = self.global_scale
+    #     global_method = self.global_method
+    #     thrglobalscore = self.thrglobalscore
+    #     smooth_num = self.smooth_num
+    #
+    #     # numbers of pairs in batch
+    #     N = np.max(region2pair_id) + 1
+    #     assert N == np.max(word2pair_id) + 1
+    #
+    #     y = np.arange(N)  # the correct pairs correspond to the diagonal elements
+    #
+    #     img_sent_score_global, SGN, img_region_with_max = global_scores_forward(sim_region_word, N, region2pair_id,
+    #                                                                             word2pair_id, smooth_num,
+    #                                                                             thrglobalscore=thrglobalscore,
+    #                                                                             global_method=global_method)
+    #
+    #     loss, d_global_scores = svm_struct_loss(img_sent_score_global, y, delta=global_margin, avg=False)
+    #
+    #     d_local_scores = global_scores_backward(d_global_scores, N, sim_region_word,
+    #                                             region2pair_id, word2pair_id, SGN,
+    #                                             img_region_with_max,
+    #                                             global_method=global_method, thrglobalscore=thrglobalscore)
+    #
+    #     return loss * global_scale, d_local_scores * global_scale
 
     def loss_association(self, sim_region_word, region_word_associat_scores):
         # input include associat_region_word_scores (or something like that)
@@ -155,15 +160,15 @@ class MultiModalNet(object):
         d_scores = np.zeros(sim_region_word.shape)
         return loss, d_scores
 
-    def loss(self, X_img, X_txt, region2pair_id, word2pair_id, region_word_associat_scores=None):
+    def loss(self, data, eval_mode, region_word_associat_scores=None):
         """
         Compute loss and gradient for a minibatch of data.
 
         Before calling this method, the loss function must be set
 
         Inputs:
-        - X: Array of input data of shape (N, d_1, ..., d_k)
-        - y: Array of labels, of shape (N,). y[i] gives the label for X[i].
+        - data: object can be BatchData or EvalData. If EvalData, set eval_mode=True,
+        so that we only return sim_region_words.
 
         Returns:
         If y is None, then run a test-time forward pass of the model and return:
@@ -181,6 +186,12 @@ class MultiModalNet(object):
         # class scores for X_img and X_txt and storing them in the sim_resion_word
         # variable.              #
         ############################################################################
+        X_img = data.X_img
+        X_txt = data.X_txt
+        # X_txt_global = batch_data.X_txt_global
+        # region2pair_id = batch_data.region2pair_id
+        # word2pair_id = batch_data.word2pair_id
+        y = data.y
 
         assert self.use_local + self.use_global + self.use_associat == 1, "need to sum up to 1"
 
@@ -205,34 +216,34 @@ class MultiModalNet(object):
         if self.finetune_w2v:
             Ww2v = self.params['Ww2v']
             bw2v = self.params['bw2v']
-            X_txt, cache_proj_txt_ftune = affine_forward(X_txt, Ww2v, bw2v)
+            X_txt, cache_proj_txt_local_ftune = affine_forward(X_txt, Ww2v, bw2v)
 
-        projected_txt, cache_proj_txt = affine_relu_forward(X_txt, Wsem, bsem)
+        projected_txt_local, cache_proj_txt_local = affine_relu_forward(X_txt, Wsem, bsem)
 
         # Compute the similarity between regions and words
-        sim_region_word, cache_mult = mult_forward(projected_imgs, projected_txt.T)
+        sim_region_word_local, cache_mult_local = mult_forward(projected_imgs, projected_txt_local.T)
 
-        # If y is None then we are in test mode so just return scores
+        # If in eval_mode return scores
         #  (ie, similarity between regions and words)
-        if region2pair_id is None and word2pair_id is None:
-            return sim_region_word
+        if eval_mode:
+            return sim_region_word_local
 
-        dscores = np.zeros(sim_region_word.shape)
+        dscores = np.zeros(sim_region_word_local.shape)
 
         if self.use_local > 0:
             # make an appropriate y
-            y = multimodal_utils.pair_id2y(region2pair_id, word2pair_id)
-            local_loss, dscores1 = self.loss_local(sim_region_word, y)
+            local_loss, dscores1 = self.loss_local(sim_region_word_local, y)
             loss += local_loss * self.use_local
             dscores += dscores1 * self.use_local
 
         if self.use_global > 0:
-            global_loss, dscores2 = self.loss_global(sim_region_word, region2pair_id, word2pair_id)
-            loss += global_loss * self.use_global
-            dscores += dscores2 * self.use_global
+            raise ValueError("current implementation does not support global loss")
+            # global_loss, dscores2 = self.loss_global(sim_region_word_local, region2pair_id, word2pair_id)
+            # loss += global_loss * self.use_global
+            # dscores += dscores2 * self.use_global
 
         if self.use_associat > 0:
-            associat_loss, dscores3 = self.loss_association(sim_region_word, region_word_associat_scores)
+            associat_loss, dscores3 = self.loss_association(sim_region_word_local, region_word_associat_scores)
             loss += associat_loss * self.use_associat
             dscores += dscores3 * self.use_associat
 
@@ -253,7 +264,7 @@ class MultiModalNet(object):
         # # self.params[k]. Don't forget to add L2 regularization!                   #
         # ############################################################################
 
-        d_proj_imgs, d_proj_txt = mult_backward(dscores, cache_mult)
+        d_proj_imgs, d_proj_txt = mult_backward(dscores, cache_mult_local)
         # d_proj_txt is allDeltasSent in matlab
         # d_proj_imgs is allDeltasImg
 
@@ -262,10 +273,10 @@ class MultiModalNet(object):
         if self.finetune_cnn:
             dX_img_, dWcnn, dbcnn = affine_relu_backward(dX_img, cache_proj_imgs_ftune)
 
-        dX_txt, dWsem, dbsem = affine_relu_backward(d_proj_txt.T, cache_proj_txt)
+        dX_txt, dWsem, dbsem = affine_relu_backward(d_proj_txt.T, cache_proj_txt_local)
 
         if self.finetune_w2v:
-            dX_txt_, dWw2v, dbw2v = affine_backward(dX_txt, cache_proj_txt_ftune)
+            dX_txt_, dWw2v, dbw2v = affine_backward(dX_txt, cache_proj_txt_local_ftune)
 
         # add the contribution of the regularization term to the gradient
         dWi2s += self.reg * Wi2s

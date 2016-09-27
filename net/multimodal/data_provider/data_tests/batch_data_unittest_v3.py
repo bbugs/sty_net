@@ -20,29 +20,29 @@ batch_data = BatchData(json_fname, cnn_fname, imgid2region_indices,
 batch_data.mk_minibatch(batch_size=3, verbose=True, debug=True)
 
 print batch_data.X_img
-print batch_data.y_local
+print batch_data.y
 
-print batch_data.X_txt_local
+print batch_data.X_txt
 print len(batch_data.unique_words_list)
 
-print batch_data.X_txt_global
-print len(batch_data.word_seq)
+# print batch_data.X_txt_global
+# print len(batch_data.word_seq)
 
-print batch_data.region2pair_id
-print batch_data.word2pair_id
+# print batch_data.region2pair_id
+# print batch_data.word2pair_id
 
 
-print batch_data.X_img.shape
-print batch_data.y_local.shape
+print batch_data.X_img.shape  # (15, 4096)
+print batch_data.y.shape  # (15, 88)
 
-print batch_data.X_txt_local.shape
-print len(batch_data.unique_words_list)
+print batch_data.X_txt.shape  # (88, 200)
+print len(batch_data.unique_words_list) # 88
 
-print batch_data.X_txt_global.shape
-print len(batch_data.word_seq)
+# print batch_data.X_txt_global.shape  # (101, 200)
+# print len(batch_data.word_seq)  # 101
 
-print batch_data.region2pair_id.shape
-print batch_data.word2pair_id.shape
+# print batch_data.region2pair_id.shape  # (15,)
+# print batch_data.word2pair_id.shape  # (101,)
 # TODO: VERY IMPORTANT!!! TEST all of these properly
 # tests
 # y_local
