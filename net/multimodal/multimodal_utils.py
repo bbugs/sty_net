@@ -4,7 +4,31 @@ import itertools
 import logging
 import pickle
 import os
+import random
 
+def init_random_weights(n_rows, n_cols=None):
+    """
+    This function aims to address the fact that numpy.random does not
+    provide a random output at runtime
+    Args:
+        n_rows:
+        n_cols:
+
+    Returns:
+
+    """
+
+    if n_cols is None:
+        w = np.zeros((n_rows))
+        for i in range(n_rows):
+            w[i] = random.gauss(mu=0.0, sigma=1)
+        return w
+    else:
+        w = np.zeros((n_rows, n_cols))
+        for i in range(n_rows):
+            for j in range(n_cols):
+                w[i, j] = random.gauss(mu=0.0, sigma=1)
+        return w
 
 def write_report(new_report_fname, new_report, exp_config, current_val_f1):
 

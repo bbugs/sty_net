@@ -8,7 +8,7 @@ Implement a multimodal net
 import numpy as np
 from net.layers import *
 from net.layer_utils import *
-from net.multimodal import multimodal_utils
+from net.multimodal import multimodal_utils as mm_utils
 
 
 class MultiModalNet(object):
@@ -67,18 +67,20 @@ class MultiModalNet(object):
         if seed:
             np.random.seed(seed)
 
-        self.params['Wi2s'] = weight_scale['img'] * np.random.randn(img_input_dim, hidden_dim)
-        self.params['bi2s'] = weight_scale['img'] * np.random.randn(hidden_dim)
-        self.params['Wsem'] = weight_scale['txt'] * np.random.randn(txt_input_dim, hidden_dim)
-        self.params['bsem'] = weight_scale['txt'] * np.random.randn(hidden_dim)
+        self.params['Wi2s'] = weight_scale['img'] * mm_utils.init_random_weights(img_input_dim, hidden_dim)
+        self.params['bi2s'] = weight_scale['img'] * mm_utils.init_random_weights(hidden_dim)
+        self.params['Wsem'] = weight_scale['txt'] * mm_utils.init_random_weights(txt_input_dim, hidden_dim)
+        self.params['bsem'] = weight_scale['txt'] * mm_utils.init_random_weights(hidden_dim)
+
+        print self.params['Wsem']
 
         if use_finetune_cnn:
-            self.params['Wcnn'] = weight_scale['img'] * np.random.randn(img_input_dim, img_input_dim)
-            self.params['bcnn'] = weight_scale['img'] * np.random.randn(img_input_dim)
+            self.params['Wcnn'] = weight_scale['img'] * mm_utils.init_random_weights(img_input_dim, img_input_dim)
+            self.params['bcnn'] = weight_scale['img'] * mm_utils.init_random_weights(img_input_dim)
 
         if use_finetune_w2v:
-            self.params['Ww2v'] = weight_scale['txt'] * np.random.randn(txt_input_dim, txt_input_dim)
-            self.params['bw2v'] = weight_scale['txt'] * np.random.randn(txt_input_dim)
+            self.params['Ww2v'] = weight_scale['txt'] * mm_utils.init_random_weights(txt_input_dim, txt_input_dim)
+            self.params['bw2v'] = weight_scale['txt'] * mm_utils.init_random_weights(txt_input_dim)
 
     def set_global_score_hyperparams(self, global_margin=40., global_scale=1., smooth_num=5.,
                                      global_method='maxaccum', thrglobalscore=False):
@@ -221,7 +223,7 @@ class MultiModalNet(object):
 
         if self.use_local > 0:
             # make an appropriate y
-            y = multimodal_utils.pair_id2y(region2pair_id, word2pair_id)
+            y = mm_utils.pair_id2y(region2pair_id, word2pair_id)
             local_loss, dscores1 = self.loss_local(sim_region_word, y)
             loss += local_loss * self.use_local
             dscores += dscores1 * self.use_local
