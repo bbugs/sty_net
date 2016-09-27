@@ -64,15 +64,15 @@ class MultiModalNet(object):
         # weights and biases using the keys 'W1' and 'b1' and second layer weights #
         # and biases using the keys 'W2' and 'b2'.
 
-        if seed:
-            np.random.seed(seed)
+        # if seed:
+        #     np.random.seed(seed)
 
         self.params['Wi2s'] = weight_scale['img'] * mm_utils.init_random_weights(img_input_dim, hidden_dim)
         self.params['bi2s'] = weight_scale['img'] * mm_utils.init_random_weights(hidden_dim)
         self.params['Wsem'] = weight_scale['txt'] * mm_utils.init_random_weights(txt_input_dim, hidden_dim)
         self.params['bsem'] = weight_scale['txt'] * mm_utils.init_random_weights(hidden_dim)
 
-        print self.params['Wsem']
+        # print self.params['Wsem']
 
         if use_finetune_cnn:
             self.params['Wcnn'] = weight_scale['img'] * mm_utils.init_random_weights(img_input_dim, img_input_dim)

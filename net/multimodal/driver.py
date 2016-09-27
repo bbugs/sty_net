@@ -159,14 +159,14 @@ if __name__ == "__main__":
 
     # target vocab (used in alignment_data.py on make_y_true_img2txt)
     # TODO: see where min_freq applies (perhaps make the clean json already remove words with less than min_freq)
-    parser.add_argument('--train_vocab', dest='train_vocab', type=str,
-                        default=root_path + '/fashion53k/vocab_per_split/vocab_train_min_freq_5.txt')
-
-    parser.add_argument('--val_vocab', dest='val_vocab', type=str,
-                        default=root_path + '/fashion53k/vocab_per_split/vocab_val_min_freq_5.txt')
-
-    parser.add_argument('--test_vocab', dest='test_vocab', type=str,
-                        default=root_path + '/fashion53k/vocab_per_split/vocab_test_min_freq_5.txt')
+    # parser.add_argument('--train_vocab', dest='train_vocab', type=str,
+    #                     default=root_path + '/fashion53k/vocab_per_split/vocab_train_min_freq_5.txt')
+    #
+    # parser.add_argument('--val_vocab', dest='val_vocab', type=str,
+    #                     default=root_path + '/fashion53k/vocab_per_split/vocab_val_min_freq_5.txt')
+    #
+    # parser.add_argument('--test_vocab', dest='test_vocab', type=str,
+    #                     default=root_path + '/fashion53k/vocab_per_split/vocab_test_min_freq_5.txt')
 
     # path to save checkpoints and reports
     parser.add_argument('--checkpoint_path', dest='checkpoint_path', type=str,
