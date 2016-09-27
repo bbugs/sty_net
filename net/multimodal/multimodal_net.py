@@ -69,10 +69,10 @@ class MultiModalNet(object):
         # if seed:
         #     np.random.seed(seed)
 
-        self.params['Wi2s'] = weight_scale['img'] * np.random.rand(img_input_dim, hidden_dim)
-        self.params['bi2s'] = weight_scale['img'] * np.random.rand(hidden_dim)
-        self.params['Wsem'] = weight_scale['txt'] * np.random.rand(txt_input_dim, hidden_dim)
-        self.params['bsem'] = weight_scale['txt'] * np.random.rand(hidden_dim)
+        self.params['Wi2s'] = weight_scale['img'] * mm_utils.init_random_weights(img_input_dim, hidden_dim)
+        self.params['bi2s'] = weight_scale['img'] * mm_utils.init_random_weights(hidden_dim)
+        self.params['Wsem'] = weight_scale['txt'] * mm_utils.init_random_weights(txt_input_dim, hidden_dim)
+        self.params['bsem'] = weight_scale['txt'] * mm_utils.init_random_weights(hidden_dim)
 
         print self.params['Wsem']
 
