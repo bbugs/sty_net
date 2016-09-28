@@ -23,8 +23,9 @@ from net.multimodal.experiment_db.experiment_db_setup import Base, Experiment
 def run_experiment(exp_config):
 
     mm_net = experiment.set_model(exp_config)
+    batch_data = get_batch_data(exp_config, subset_num_items=-1)  # TODO: change to -1
 
-    solver = MultiModalSolver(mm_net, BATCH_DATA, EVAL_DATA_TRAIN, EVAL_DATA_VAL,
+    solver = MultiModalSolver(mm_net, batch_data, EVAL_DATA_TRAIN, EVAL_DATA_VAL,
                               NUM_ITEMS_TRAIN, exp_config, verbose=True)
     print "starting to train id {}".format(exp_config['id'])
     solver.train()
@@ -196,7 +197,7 @@ if __name__ == "__main__":
 
     parser.add_argument('--start_modulation', dest='start_modulation', type=float, default=0.75)
     parser.add_argument('--print_every', dest='print_every', type=int, default=10)  # print loss
-    parser.add_argument('--num_epochs', dest='num_epochs', type=int, default=20)  # number of epochs
+    parser.add_argument('--num_epochs', dest='num_epochs', type=int, default=10)  # number of epochs
     parser.add_argument('--batch_size', dest='batch_size', type=int, default=50)  # batch size
     parser.add_argument('--update_rule', dest='update_rule', type=str, default='sgd')  # update rule
     parser.add_argument('--lr_decay', dest='lr_decay', type=float, default=0.95)  # learning rate decay
@@ -240,7 +241,7 @@ if __name__ == "__main__":
 
     # Build constant data
     print "building data"
-    BATCH_DATA = get_batch_data(GLOBAL_CONFIG, subset_num_items=-1)  # TODO: change to -1
+
     EVAL_DATA_TRAIN, EVAL_DATA_VAL = get_eval_data(GLOBAL_CONFIG, subset_train=-1, subset_val=-1)  # TODO: change to -1
     NUM_ITEMS_TRAIN = 48689  # TODO: change to actual number
 
