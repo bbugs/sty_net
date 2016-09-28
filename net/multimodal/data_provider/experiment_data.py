@@ -33,6 +33,7 @@ class BatchData(ExperimentData):
     def __init__(self, json_fname, cnn_fname, img_id2cnn_region_indeces,
                  w2v_vocab_fname, w2v_vectors_fname, subset_num_items=-1):
 
+        print "creating a new BatchData object"
         ExperimentData.__init__(self, json_fname, cnn_fname, img_id2cnn_region_indeces,
                                 w2v_vocab_fname, w2v_vectors_fname, subset_num_items)
 

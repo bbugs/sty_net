@@ -21,10 +21,13 @@ from net.multimodal.experiment_db.experiment_db_setup import Base, Experiment
 
 
 def run_experiment(exp_config):
-
+    logging.info("id_{} setting model".format(exp_config['id']))
     mm_net = experiment.set_model(exp_config)
+
+    logging.info("id_{} model has been set. Going to create new batch object".format(exp_config['id']))
     batch_data = get_batch_data(exp_config, subset_num_items=-1)  # TODO: change to -1
 
+    logging.info("id_{} created new batch object".format(exp_config['id']))
     solver = MultiModalSolver(mm_net, batch_data, EVAL_DATA_TRAIN, EVAL_DATA_VAL,
                               NUM_ITEMS_TRAIN, exp_config, verbose=True)
     print "starting to train id {}".format(exp_config['id'])
@@ -240,9 +243,10 @@ if __name__ == "__main__":
     logging.info(json.dumps(GLOBAL_CONFIG, indent=2))
 
     # Build constant data
-    print "building data"
+    print "building eval data"
 
-    EVAL_DATA_TRAIN, EVAL_DATA_VAL = get_eval_data(GLOBAL_CONFIG, subset_train=-1, subset_val=-1)  # TODO: change to -1
+    EVAL_DATA_TRAIN, EVAL_DATA_VAL = get_eval_data(GLOBAL_CONFIG, subset_train=5000, subset_val=1000)  # TODO: change to -1
+    print "finished building eval data"
     NUM_ITEMS_TRAIN = 48689  # TODO: change to actual number
 
     main(args)

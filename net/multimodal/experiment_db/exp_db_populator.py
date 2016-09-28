@@ -42,4 +42,8 @@ def populate_db(db_fname, n_exps):
 
     session.commit()
 
+    session.close()
+
+    engine.dispose()
+
     return
