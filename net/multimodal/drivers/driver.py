@@ -208,7 +208,7 @@ if __name__ == "__main__":
     parser.add_argument('--num_exps', dest='num_exps', type=int, default=48)
 
     # number of threads
-    parser.add_argument("-t", dest="num_threads", default=2, help="number of threads")
+    parser.add_argument("-t", dest="num_threads", default=4, help="number of threads")
 
     args = parser.parse_args()
 
@@ -245,7 +245,7 @@ if __name__ == "__main__":
     # Build constant data
     print "building eval data"
 
-    EVAL_DATA_TRAIN, EVAL_DATA_VAL = get_eval_data(GLOBAL_CONFIG, subset_train=5000, subset_val=1000)  # TODO: change to -1
+    EVAL_DATA_TRAIN, EVAL_DATA_VAL = get_eval_data(GLOBAL_CONFIG, subset_train=-1, subset_val=-1)  # TODO: change to -1
     print "finished building eval data"
     NUM_ITEMS_TRAIN = 48689  # TODO: change to actual number
 
