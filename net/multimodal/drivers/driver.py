@@ -138,16 +138,16 @@ if __name__ == "__main__":
 
     # Json files with text
     parser.add_argument('--json_path', dest='json_path', type=str,
-                        default=root_path + '/fashion53k/json/with_ngrams/')
+                        default=root_path + '/fashion53k/json/only_zappos/')
 
     parser.add_argument('--json_path_train', dest='json_path_train', type=str,
-                        default=root_path + '/fashion53k/json/with_ngrams/dataset_dress_all_train.clean.json')
+                        default=root_path + '/fashion53k/json/only_zappos/dataset_dress_all_train.clean.json')
 
     parser.add_argument('--json_path_val', dest='json_path_val', type=str,
-                        default=root_path + '/fashion53k/json/with_ngrams/dataset_dress_all_val.clean.json')
+                        default=root_path + '/fashion53k/json/only_zappos/dataset_dress_all_val.clean.json')
 
     parser.add_argument('--json_path_test', dest='json_path_test', type=str,
-                        default=root_path + '/fashion53k/json/with_ngrams/dataset_dress_all_test.clean.json')
+                        default=root_path + '/fashion53k/json/only_zappos/dataset_dress_all_test.clean.json')
 
     # Word2vec vectors and vocab
     parser.add_argument('--word2vec_vocab', dest='word2vec_vocab', type=str,
@@ -195,16 +195,16 @@ if __name__ == "__main__":
     # start after 0.75 of epochs
 
     parser.add_argument('--start_modulation', dest='start_modulation', type=float, default=0.75)
-    parser.add_argument('--print_every', dest='print_every', type=int, default=2)  # print loss
-    parser.add_argument('--num_epochs', dest='num_epochs', type=int, default=7)  # number of epochs
-    parser.add_argument('--batch_size', dest='batch_size', type=int, default=5)  # batch size
+    parser.add_argument('--print_every', dest='print_every', type=int, default=10)  # print loss
+    parser.add_argument('--num_epochs', dest='num_epochs', type=int, default=20)  # number of epochs
+    parser.add_argument('--batch_size', dest='batch_size', type=int, default=50)  # batch size
     parser.add_argument('--update_rule', dest='update_rule', type=str, default='sgd')  # update rule
     parser.add_argument('--lr_decay', dest='lr_decay', type=float, default=0.95)  # learning rate decay
 
     parser.add_argument('--num_exps', dest='num_exps', type=int, default=48)
 
     # number of threads
-    parser.add_argument("-t", dest="num_threads", default=1, help="number of threads")
+    parser.add_argument("-t", dest="num_threads", default=2, help="number of threads")
 
     args = parser.parse_args()
 
@@ -240,9 +240,9 @@ if __name__ == "__main__":
 
     # Build constant data
     print "building data"
-    BATCH_DATA = get_batch_data(GLOBAL_CONFIG, subset_num_items=20)  # TODO: change to -1
-    EVAL_DATA_TRAIN, EVAL_DATA_VAL = get_eval_data(GLOBAL_CONFIG, subset_train=20, subset_val=10)  # TODO: change to -1
-    NUM_ITEMS_TRAIN = 20  # TODO: change to actual number
+    BATCH_DATA = get_batch_data(GLOBAL_CONFIG, subset_num_items=-1)  # TODO: change to -1
+    EVAL_DATA_TRAIN, EVAL_DATA_VAL = get_eval_data(GLOBAL_CONFIG, subset_train=-1, subset_val=-1)  # TODO: change to -1
+    NUM_ITEMS_TRAIN = 48689  # TODO: change to actual number
 
     main(args)
 
