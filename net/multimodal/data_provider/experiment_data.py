@@ -61,8 +61,8 @@ class BatchData(ExperimentData):
 
         self.word_seq = []  # the entire sequence of words concatenated for the batch
 
-        # self.region2pair_id = np.array([])
-        # self.word2pair_id = np.array([])
+    # self.region2pair_id = np.array([])
+    # self.word2pair_id = np.array([])
 
     # def _mk_region2pair_id(self):
     #
@@ -176,8 +176,7 @@ class BatchData(ExperimentData):
             self.X_img
             self.X_txt_local
             self.X_txt_global
-            self.region2pair_id
-            self.word2pair_id
+
         Returns:
 
         """
@@ -231,62 +230,107 @@ class EvaluationData(ExperimentData):
                                 w2v_vocab_fname, w2v_vectors_fname, subset_num_items)
 
         self.external_vocab = Vocabulary(external_vocab_fname)  # zappos
+        self.external_vocab_words = self.external_vocab.get_vocab()  # list of words in vocab
+        self.ext_vocab_word2id, self.id2word_ext_vocab = self.external_vocab.get_vocab_dicts()
+
+        self.img_ids = self.json_file.get_img_ids()
         self.y = np.array([])  # used to be y_img2txt
 
         self.X_txt = np.array([])
         self.X_img = np.array([])
 
-        self.set_features()
+        self.img_id2words_ext_vocab = {}
+        self.img_id2word_ids_ext_vocab = {}
+        self.ext_vocab_word2img_ids = {}
 
+        self.num_regions_in_split = 0
 
-    def set_features(self):
+        self._set_features()
+
+    def _set_aux_dicts(self):
+
+        for img_id in self.img_ids:
+            words_in_img = self.json_file.get_word_list_of_img_id(img_id, remove_stops=True)
+            self.img_id2words_ext_vocab[img_id] = [w for w in words_in_img if w in self.external_vocab_words]
+            self.img_id2word_ids_ext_vocab[img_id] = [self.ext_vocab_word2id[w] for
+                                                      w in words_in_img if w in self.external_vocab_words]
+            for w in words_in_img:
+                if w not in self.ext_vocab_word2img_ids:
+                    self.ext_vocab_word2img_ids[w] = []
+                self.ext_vocab_word2img_ids[w].append(img_id)
+
+    def _set_num_regions_in_split(self):
+        for img_id in self.img_ids:
+            self.num_regions_in_split += len(self.img_id2cnn_region_indeces[img_id])
+
+    def _set_y(self):
+        self.y = -np.ones((self.num_regions_in_split, len(self.external_vocab_words)), dtype=int)
+
+        region_index = 0
+        for img_id in self.img_ids:
+            n_regions_in_img_id = len(self.img_id2cnn_region_indeces[img_id])
+
+            word_ids_in_img = self.img_id2word_ids_ext_vocab[img_id]
+            for word_id in word_ids_in_img:
+                self.y[region_index:region_index + n_regions_in_img_id, word_id] = 1
+            region_index += n_regions_in_img_id
+
+    def _set_X_img(self):
+        self.X_img = np.zeros((self.num_regions_in_split, self.cnn_data.get_cnn_dim()))
+
+        split_region_index = 0
+        for img_id in self.img_ids:
+            for region_index in self.img_id2cnn_region_indeces[img_id]:
+                self.X_img[split_region_index, :] = self.cnn_data.get_cnn_from_index(region_index)
+                split_region_index += 1
+
+    def _set_X_txt(self):
+        self.X_txt = self.w2v_data.get_word_vectors_of_word_list(self.external_vocab_words)
+
+    def _set_X_txt_mwq(self):
+        # set X_txt for multiple-word-queries.  This is to reproduce the textual queries
+        # from the original images. We average the word2vec features to produce one query.
+
+        self.X_txt_mwq = np.zeros((len(self.img_ids), self.w2v_data.get_word2vec_dim()))
+        i = 0
+        for img_id in self.img_ids:
+            words_in_img = self.img_id2words_ext_vocab[img_id]
+            X_txt = self.w2v_data.get_word_vectors_of_word_list(words_in_img) # (n_words_in_img, w2v_dim)
+            self.X_txt_mwq[i,:] = np.mean(X_txt, axis=0)
+            i += 1
+
+    def _set_features(self):
         """
         zappos vocabulary are the queries.
 
-        y is y_true_zappos_img for txt2img
+        y for img2txt
 
         Queries: txt from external vocab
         Target: full images from json_file instantiated in the constructor of this class
 
         assume a fixed num_regions_per_img
 
+        Creates:
+            -y: matrix of size num_regions_in_split, len(external_vocab). It contains +1 or -1
+            to indicate whether the region and the word occur together
+            -X_img: matrix of cnn features. Size: n_regions x cnn_dim
+            -X_txt: matrix of word2vec features. Size: n_words_in_external_vocab x w2v_dim
+            -X_txt_mwq: word2vec features of multi-word-queries (mwq). Size: n_imgs x w2v_dim
+
+
         Return:
             - y_true_txt2img: np array of size (|external_vocab|, n_regions_per_img * n_img_in_split)
 
+
         """
 
+        self._set_num_regions_in_split()
         # get external (zappos) vocabulary
-        external_vocab = self.external_vocab.get_vocab()  # list of words in vocab
-        word2id, id2word = self.external_vocab.get_vocab_dicts()
-
-        img_ids = self.json_file.get_img_ids()
-
-        num_regions_in_split = 0
-        for img_id in img_ids:
-            num_regions_in_split += len(self.img_id2cnn_region_indeces[img_id])
-
-        self.y = -np.ones((num_regions_in_split, len(external_vocab)), dtype=int)
-
-        self.X_img = np.zeros((num_regions_in_split, self.cnn_data.get_cnn_dim()))
-
-        region_index = 0
-        split_region_index = 0
-        for img_id in img_ids:
-            n_regions_in_img_id = len(self.img_id2cnn_region_indeces[img_id])
-            word_list = self.json_file.get_word_list_of_img_id(img_id, remove_stops=True)
-            # keep words only from the zappos (external) vocab.  These are the queries.
-            word_list_external_vocab = [w for w in word_list if w in external_vocab]
-            for word in word_list_external_vocab:
-                word_id = word2id[word]
-                self.y[region_index:region_index + n_regions_in_img_id, word_id] = 1
-            region_index += n_regions_in_img_id
-
-            # Set cnn vectors for the batch X_img
-            for region_index in self.img_id2cnn_region_indeces[img_id]:
-                self.X_img[split_region_index, :] = self.cnn_data.get_cnn_from_index(region_index)
-                split_region_index += 1
-
-        self.X_txt = self.w2v_data.get_word_vectors_of_word_list(external_vocab)
+        self._set_aux_dicts()
+        self._set_y()
+        self._set_X_img()
+        self._set_X_txt()
+        self._set_X_txt_mwq()
 
         return
 
