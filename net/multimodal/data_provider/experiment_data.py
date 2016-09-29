@@ -246,7 +246,7 @@ class EvaluationData(ExperimentData):
         y is y_true_zappos_img for txt2img
 
         Queries: txt from external vocab
-        Target: image regions from json_file instantiated in the constructor of this class
+        Target: full images from json_file instantiated in the constructor of this class
 
         assume a fixed num_regions_per_img
 
@@ -319,7 +319,7 @@ def get_batch_data(exp_config, subset_num_items=-1):
     return batch_data
 
 
-def get_eval_data(exp_config, subset_train=-1, subset_val=-1):
+def get_eval_data(exp_config, subset_train=-1, subset_val=-1, subset_test=-1):
     """
 
     Parameters
@@ -365,5 +365,20 @@ def get_eval_data(exp_config, subset_train=-1, subset_val=-1):
                                    w2v_vocab_fname, w2v_vectors_fname,
                                    external_vocab_fname, subset_num_items=subset_val)  # TODO: set to -1 on the real experiments
 
-    return eval_data_train, eval_data_val
+    # ______________________________________________
+    # Test Evaluation Data
+    # ----------------------------------------------
+    print "setting evaluation data for test split"
+    json_fname_test = exp_config['json_path_test']
+    cnn_fname_test = exp_config['cnn_full_img_path_test']
+    imgid2region_indices_test = multimodal_utils.mk_toy_img_id2region_indices(json_fname_test,
+                                                                              num_regions_per_img=num_regions_per_img,
+                                                                              subset_num_items=-1)
+
+    eval_data_test = EvaluationData(json_fname_test, cnn_fname_test, imgid2region_indices_test,
+                                    w2v_vocab_fname, w2v_vectors_fname,
+                                    external_vocab_fname,
+                                    subset_num_items=subset_test)  # TODO: set to -1 on the real experiments
+
+    return eval_data_train, eval_data_val, eval_data_test
 

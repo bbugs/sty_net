@@ -104,79 +104,74 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
 
-    # root path
-    parser.add_argument('--root_path', dest='root_path', type=str, default='../data/')
-    args = parser.parse_args()
-    root_path = args.root_path
-
     # number of image regions
     parser.add_argument('--num_regions_per_img', dest='num_regions_per_img', type=int, default=5)
 
     # Image CNN (Full Image + Regions) features
     parser.add_argument('--cnn_regions_path', dest='cnn_regions_path', type=str,
-                        default=root_path + '/fashion53k/img_regions/4_regions_cnn/per_split/')
+                        default='../data/fashion53k/img_regions/4_regions_cnn/per_split/')
 
     parser.add_argument('--cnn_regions_path_train', dest='cnn_regions_path_train', type=str,
-                        default=root_path + '/fashion53k/img_regions/4_regions_cnn/per_split/cnn_fc7_train.txt')
+                        default='../data/fashion53k/img_regions/4_regions_cnn/per_split/cnn_fc7_train.txt')
 
     parser.add_argument('--cnn_regions_path_val', dest='cnn_regions_path_val', type=str,
-                        default=root_path + '/fashion53k/img_regions/4_regions_cnn/per_split/cnn_fc7_val.txt')
+                        default='../data/fashion53k/img_regions/4_regions_cnn/per_split/cnn_fc7_val.txt')
 
     parser.add_argument('--cnn_regions_path_test', dest='cnn_regions_path_test', type=str,
-                        default=root_path + '/fashion53k/img_regions/4_regions_cnn/per_split/cnn_fc7_test.txt')
+                        default='../data/fashion53k/img_regions/4_regions_cnn/per_split/cnn_fc7_test.txt')
 
     # Image CNN (Full Image only) features
     # TODO: Make cnn features for full images only
     # TODO: see where num_regions apply
     parser.add_argument('--cnn_full_img_path', dest='cnn_full_img_path', type=str,
-                        default=root_path + '/fashion53k/full_img/per_split/')
+                        default='../data/fashion53k/full_img/per_split/')
 
     parser.add_argument('--cnn_full_img_path_train', dest='cnn_full_img_path_train', type=str,
-                        default=root_path + '/fashion53k/full_img/per_split/cnn_fc7_train.txt')
+                        default='../data/fashion53k/full_img/per_split/cnn_fc7_train.txt')
 
     parser.add_argument('--cnn_full_img_path_val', dest='cnn_full_img_path_val', type=str,
-                        default=root_path + '/fashion53k/full_img/per_split/cnn_fc7_val.txt')
+                        default='../data/fashion53k/full_img/per_split/cnn_fc7_val.txt')
 
     parser.add_argument('--cnn_full_img_path_test', dest='cnn_full_img_path_test', type=str,
-                        default=root_path + '/fashion53k/full_img/per_split/cnn_fc7_test.txt')
+                        default='../data/fashion53k/full_img/per_split/cnn_fc7_test.txt')
 
     # Json files with text
     parser.add_argument('--json_path', dest='json_path', type=str,
-                        default=root_path + '/fashion53k/json/only_zappos/')
+                        default='../data/fashion53k/json/only_zappos/')
 
     parser.add_argument('--json_path_train', dest='json_path_train', type=str,
-                        default=root_path + '/fashion53k/json/only_zappos/dataset_dress_all_train.clean.json')
+                        default='../data/fashion53k/json/only_zappos/dataset_dress_all_train.clean.json')
 
     parser.add_argument('--json_path_val', dest='json_path_val', type=str,
-                        default=root_path + '/fashion53k/json/only_zappos/dataset_dress_all_val.clean.json')
+                        default='../data/fashion53k/json/only_zappos/dataset_dress_all_val.clean.json')
 
     parser.add_argument('--json_path_test', dest='json_path_test', type=str,
-                        default=root_path + '/fashion53k/json/only_zappos/dataset_dress_all_test.clean.json')
+                        default='../data/fashion53k/json/only_zappos/dataset_dress_all_test.clean.json')
 
     # Word2vec vectors and vocab
     parser.add_argument('--word2vec_vocab', dest='word2vec_vocab', type=str,
-                        default=root_path + '/word_vects/glove/vocab.txt')
+                        default='../data/word_vects/glove/vocab.txt')
     parser.add_argument('--word2vec_vectors', dest='word2vec_vectors', type=str,
-                        default=root_path + '/word_vects/glove/vocab_vecs.txt')
+                        default='../data/word_vects/glove/vocab_vecs.txt')
 
     # External vocabulary
     parser.add_argument('--external_vocab', dest='external_vocab', type=str,
-                        default=root_path + '/fashion53k/external_vocab/zappos.vocab.txt')
+                        default='../data/fashion53k/external_vocab/zappos.vocab.txt')
 
     # target vocab (used in alignment_data.py on make_y_true_img2txt)
     # TODO: see where min_freq applies (perhaps make the clean json already remove words with less than min_freq)
     # parser.add_argument('--train_vocab', dest='train_vocab', type=str,
-    #                     default=root_path + '/fashion53k/vocab_per_split/vocab_train_min_freq_5.txt')
+    #                     default='../data/fashion53k/vocab_per_split/vocab_train_min_freq_5.txt')
     #
     # parser.add_argument('--val_vocab', dest='val_vocab', type=str,
-    #                     default=root_path + '/fashion53k/vocab_per_split/vocab_val_min_freq_5.txt')
+    #                     default='../data/fashion53k/vocab_per_split/vocab_val_min_freq_5.txt')
     #
     # parser.add_argument('--test_vocab', dest='test_vocab', type=str,
-    #                     default=root_path + '/fashion53k/vocab_per_split/vocab_test_min_freq_5.txt')
+    #                     default='../data/fashion53k/vocab_per_split/vocab_test_min_freq_5.txt')
 
     # path to save checkpoints and reports
     parser.add_argument('--checkpoint_path', dest='checkpoint_path', type=str,
-                        default=root_path + '/fashion53k/experiment_results/')
+                        default='../data/fashion53k/experiment_results/')
 
     # path to experiment.db
     parser.add_argument('--experiment_db', dest='experiment_db', type=str,
@@ -208,7 +203,7 @@ if __name__ == "__main__":
     parser.add_argument('--num_exps', dest='num_exps', type=int, default=48)
 
     # number of threads
-    parser.add_argument("-t", dest="num_threads", default=4, help="number of threads")
+    parser.add_argument("-t", dest="num_threads", default=1, help="number of threads")
 
     args = parser.parse_args()
 
@@ -245,9 +240,12 @@ if __name__ == "__main__":
     # Build constant data
     print "building eval data"
 
-    EVAL_DATA_TRAIN, EVAL_DATA_VAL = get_eval_data(GLOBAL_CONFIG, subset_train=-1, subset_val=-1)  # TODO: change to -1
+    EVAL_DATA_TRAIN, EVAL_DATA_VAL, EVAL_DATA_TEST = get_eval_data(GLOBAL_CONFIG,
+                                                                   subset_train=500,
+                                                                   subset_val=100,
+                                                                   subset_test=100)  # TODO: change to -1
     print "finished building eval data"
-    NUM_ITEMS_TRAIN = 48689  # TODO: change to actual number
+    NUM_ITEMS_TRAIN = 1000  # TODO: change to actual number
 
     main(args)
 
