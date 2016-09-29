@@ -35,6 +35,7 @@ class JsonFile(object):
             if num_items > 0:  # get the first num_items if needed
                 self.dataset_items = self.dataset['items'][0: num_items]
             self.stop_words = set(stopwords.words('english'))
+            self.img_id2words = {}
 
         return
 
@@ -189,7 +190,7 @@ class JsonFile(object):
 
         return txt
 
-    def get_vocab_words_from_json(self, remove_stops, min_word_freq=5):
+    def get_vocab_words_from_json(self, remove_stops, min_word_freq):
         """
         Get vocab words from json sorted by freq
         """
@@ -204,7 +205,7 @@ class JsonFile(object):
         return len(self.get_vocab_words_from_json(remove_stops,
                                                   min_word_freq=min_word_freq))
 
-    def _set_word2img_ids_index(self, remove_stops, min_word_freq=5):
+    def _set_word2img_ids_index(self, remove_stops, min_word_freq):
 
         # make sure img_ids have been set
         if len(self.img_ids) == 0:
@@ -220,7 +221,7 @@ class JsonFile(object):
                 self.word2img_ids_index[w].append(img_id)
         return
 
-    def get_word2img_ids_index(self, remove_stops, min_word_freq=5, save_fname=None):
+    def get_word2img_ids_index(self, remove_stops, min_word_freq, save_fname=None):
 
         if save_fname is not None and os.path.isfile(save_fname):
             return pickle.load(open(save_fname, 'rb'))
@@ -230,6 +231,25 @@ class JsonFile(object):
         if save_fname is not None:
             pickle.dump(self.word2img_ids_index, open(save_fname, 'wb'))
         return self.word2img_ids_index
+
+    def _set_img_id2words(self, remove_stops, min_word_freq):
+        # make sure img_ids have been set
+        if len(self.img_ids) == 0:
+            self.set_img_ids()
+
+        vocab = set(self.get_vocab_words_from_json(remove_stops, min_word_freq=min_word_freq))
+
+        for img_id in self.img_ids:
+            words = [w for w in self.get_word_list_of_img_id(img_id, remove_stops) if w in vocab]
+            self.img_id2words[img_id] = words
+
+        return
+
+    def get_img_id2words(self, remove_stops, min_word_freq):
+        if len(self.img_id2words) == 0:
+            self._set_img_id2words(remove_stops, min_word_freq)
+        return self.img_id2words
+
 
     # TODO: Implement:
     # get_num_tokens_in_json
