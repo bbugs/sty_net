@@ -23,5 +23,6 @@ print eval_data.X_txt
 print eval_data.y
 print eval_data.X_txt_mwq
 print eval_data.img_id2word_ids_ext_vocab
+print eval_data.ext_vocab_word2img_ids
 
 # TODO: extend tests with asserts
