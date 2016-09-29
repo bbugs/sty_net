@@ -336,17 +336,15 @@ def get_eval_data(exp_config, subset_train=-1, subset_val=-1):
     # ----------------------------------------------
 
     json_fname_train = exp_config['json_path_train']
-    cnn_fname_train = exp_config['cnn_regions_path_train']  # TODO: this should be cnn_full_img_path_train
+    cnn_fname_train = exp_config['cnn_full_img_path_train']
 
     w2v_vocab_fname = exp_config['word2vec_vocab']
     w2v_vectors_fname = exp_config['word2vec_vectors']
 
-    num_regions_per_img = exp_config['num_regions_per_img']  # TODO: replace this by the actual num_regions_per_img
+    num_regions_per_img = 1  # During evaluation num_regions_per_img is set to 1 because we evaluate with full img cnn
     imgid2region_indices_train = multimodal_utils.mk_toy_img_id2region_indices(json_fname_train,
                                                                                num_regions_per_img=num_regions_per_img,
                                                                                subset_num_items=-1)
-
-    # TODO: the evaluation data for both train and val should be with cnn for the full region
     external_vocab_fname = exp_config['external_vocab']
 
     eval_data_train = EvaluationData(json_fname_train, cnn_fname_train, imgid2region_indices_train,
@@ -358,7 +356,7 @@ def get_eval_data(exp_config, subset_train=-1, subset_val=-1):
     # ----------------------------------------------
     print "setting evaluation data for val split"
     json_fname_val = exp_config['json_path_val']
-    cnn_fname_val = exp_config['cnn_regions_path_val']  # TODO: this should be cnn_full_img_path_val
+    cnn_fname_val = exp_config['cnn_full_img_path_val']
     imgid2region_indices_val = multimodal_utils.mk_toy_img_id2region_indices(json_fname_val,
                                                                              num_regions_per_img=num_regions_per_img,
                                                                              subset_num_items=-1)
