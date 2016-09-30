@@ -244,6 +244,8 @@ class EvaluationData(ExperimentData):
         self.ext_vocab_word2img_ids = {}
 
         self.num_regions_in_split = 0
+        self.true_words_list = []  # list of lists in the same order as img_ids, it contains the words of each img
+        self.true_word_ids = []  # list of lists
 
         self._set_features()
 
@@ -262,6 +264,18 @@ class EvaluationData(ExperimentData):
     def _set_num_regions_in_split(self):
         for img_id in self.img_ids:
             self.num_regions_in_split += len(self.img_id2cnn_region_indeces[img_id])
+
+    def _set_true_words_list(self):
+
+        for img_id in self.img_ids:
+            words = self.img_id2words_ext_vocab[img_id]
+            self.true_words_list.append(words)
+
+    def _set_true_word_ids(self):
+
+        for img_id in self.img_ids:
+            word_ids = self.img_id2word_ids_ext_vocab[img_id]
+            self.true_word_ids.append(word_ids)
 
     def _set_y(self):
         self.y = -np.ones((self.num_regions_in_split, len(self.external_vocab_words)), dtype=int)
@@ -286,18 +300,6 @@ class EvaluationData(ExperimentData):
 
     def _set_X_txt(self):
         self.X_txt = self.w2v_data.get_word_vectors_of_word_list(self.external_vocab_words)
-
-    def _set_X_txt_mwq(self):
-        # set X_txt for multiple-word-queries.  This is to reproduce the textual queries
-        # from the original images. We average the word2vec features to produce one query.
-
-        self.X_txt_mwq = np.zeros((len(self.img_ids), self.w2v_data.get_word2vec_dim()))
-        i = 0
-        for img_id in self.img_ids:
-            words_in_img = self.img_id2words_ext_vocab[img_id]
-            X_txt = self.w2v_data.get_word_vectors_of_word_list(words_in_img) # (n_words_in_img, w2v_dim)
-            self.X_txt_mwq[i,:] = np.mean(X_txt, axis=0)
-            i += 1
 
     def _set_features(self):
         """
@@ -327,13 +329,27 @@ class EvaluationData(ExperimentData):
         self._set_num_regions_in_split()
         # get external (zappos) vocabulary
         self._set_aux_dicts()
+        self._set_true_words_list()
         self._set_y()
         self._set_X_img()
         self._set_X_txt()
-        self._set_X_txt_mwq()
 
         return
 
+
+class EvaluationDataTest(EvaluationData):
+
+    def _set_X_txt(self):
+        # set X_txt for multiple-word-queries.  This is to reproduce the textual queries
+        # from the original images. We average the word2vec features to produce one query.
+
+        self.X_txt_mwq = np.zeros((len(self.img_ids), self.w2v_data.get_word2vec_dim()))
+        i = 0
+        for img_id in self.img_ids:
+            words_in_img = self.img_id2words_ext_vocab[img_id]
+            X_txt = self.w2v_data.get_word_vectors_of_word_list(words_in_img) # (n_words_in_img, w2v_dim)
+            self.X_txt_mwq[i,:] = np.mean(X_txt, axis=0)
+            i += 1
 
 def get_batch_data(exp_config, subset_num_items=-1):
     """
