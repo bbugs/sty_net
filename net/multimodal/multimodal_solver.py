@@ -13,6 +13,7 @@ class MultiModalSolver(object):
     """
 
     def __init__(self, model, batch_data, eval_data_train, eval_data_val,
+                 # eval_data_test, eval_data_test_mwq,
                  num_items_train, exp_config, verbose=True):
         """
         Construct a new Solver instance.
@@ -154,7 +155,7 @@ class MultiModalSolver(object):
         """
         # Make a minibatch of training data
 
-        self.batch_data.mk_minibatch(batch_size=self.batch_size, verbose=False)  # TODO: chance verbose to False if you dont want to see the img_ids from the minibatch
+        self.batch_data.mk_minibatch(batch_size=self.batch_size, verbose=False)  # verbose to False if you dont want to see the img_ids from the minibatch
 
         # Compute loss and gradient
         loss, grads = self.model.loss(self.batch_data, eval_mode=False)
@@ -246,6 +247,21 @@ class MultiModalSolver(object):
     #     acc = np.mean(y_pred == y)
     #
     #     return acc
+
+    def rank_performance_img2txt_all_ks(self, eval_data, Ks):
+        sim_region_word = self.model.loss(eval_data, eval_mode=True)
+        word_ids_pred = np.argsort(-sim_region_word, axis=1).tolist()
+        true_word_ids = eval_data.true_word_ids
+        performance = metrics.avg_prec_recall_all_ks(true_word_ids, word_ids_pred, Ks)
+        return performance
+
+    def rank_performance_txt2img_all_ks(self, eval_data, Ks):
+        sim_word_region = self.model.loss(eval_data, eval_mode=True).T
+        img_ids_pred = np.argsort(-sim_word_region, axis=1).tolist()
+        true_img_ids = eval_data.img_ids
+        performance = metrics.avg_prec_recall_all_ks(true_img_ids, img_ids_pred, Ks)
+        return performance
+
 
     def train(self):
         """

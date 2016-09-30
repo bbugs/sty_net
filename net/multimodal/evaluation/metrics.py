@@ -175,6 +175,18 @@ def avg_metric_at_k(metric, ytrue_list, ypred_list, k, verbose=False):
 
     return avg_metric / counter
 
+def avg_prec_recall_all_ks(ytrue_list, ypred_list, Ks):
+    assert len(ytrue_list) == len(ypred_list)
+
+    performance = {}
+    performance['precision'] = {}
+    performance['recall'] = {}
+    for k in Ks:
+        p = avg_metric_at_k(precision_at_k, ytrue_list, ypred_list, k)
+        r = avg_metric_at_k(recall_at_k, ytrue_list, ypred_list, k)
+        performance['precision'][k] = p
+        performance['recall'][k] = r
+    return performance
 
 
 if __name__ == '__main__':
@@ -200,6 +212,23 @@ if __name__ == '__main__':
     print "avg_prec", avg_prec
     print "avg_recall", avg_recall
     print "avg_f1", avg_f1
+
+    print "\n\n\n"
+    true_list = [[2, 3], [13, 14, 24], [37, 39, 76, 90], [9], []]
+    pred_list = [[2, 5, 6, 1, 10], [24, 14, 3, 8, 56], [37, 39, 76, 90, 1], [1, 2, 3, 4, 5], [3, 2, 4, 6, 7]]
+
+    performance = avg_prec_recall_all_ks(true_list, pred_list, Ks=[1, 5])
+
+    assert performance['precision'][1] == 0.75
+    assert performance['precision'][5] == 0.35000000000000003
+    assert performance['recall'][1] == 0.2708333333333333
+    assert performance['recall'][5] == 0.5416666666666666
+
+    print performance
+
+    # {'recall': {1: 0.2708333333333333, 5: 0.5416666666666666}, 'precision': {1: 0.75, 5: 0.35000000000000003}}
+
+
 
 
 
