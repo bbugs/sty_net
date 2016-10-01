@@ -245,7 +245,7 @@ class EvaluationData(ExperimentData):
 
         self.num_regions_in_split = 0
         self.true_words_list = []  # list of lists in the same order as img_ids, it contains the words of each img
-        self.true_word_ids = []  # list of lists
+        self.true_word_ids_list = []  # list of lists
 
         self._set_features()
 
@@ -271,13 +271,20 @@ class EvaluationData(ExperimentData):
             words = self.img_id2words_ext_vocab[img_id]
             self.true_words_list.append(words)
 
-    def _set_true_word_ids(self):
+    def _set_true_word_ids_list(self):
 
         for img_id in self.img_ids:
             word_ids = self.img_id2word_ids_ext_vocab[img_id]
-            self.true_word_ids.append(word_ids)
+            self.true_word_ids_list.append(word_ids)
 
     def _set_y(self):
+        """
+
+        Creates:
+        self.y: Matrix of size num_regions, len(external_vocab_words). Each element
+        y[i,j] = +1 or -1, indicates whether region i and word j occurred together
+
+        """
         self.y = -np.ones((self.num_regions_in_split, len(self.external_vocab_words)), dtype=int)
 
         region_index = 0
@@ -330,6 +337,7 @@ class EvaluationData(ExperimentData):
         # get external (zappos) vocabulary
         self._set_aux_dicts()
         self._set_true_words_list()
+        self._set_true_word_ids_list()
         self._set_y()
         self._set_X_img()
         self._set_X_txt()
