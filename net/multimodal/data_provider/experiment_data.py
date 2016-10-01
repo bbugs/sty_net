@@ -337,18 +337,39 @@ class EvaluationData(ExperimentData):
         return
 
 
-class EvaluationDataTest(EvaluationData):
+class EvaluationDataMWQ(EvaluationData):
+    """
+    Evaluation data for Multiple-Word Queries (MWQ)
+    """
+
+    def __init__(self, json_fname, cnn_fname, img_id2cnn_region_indeces,
+                 w2v_vocab_fname, w2v_vectors_fname, external_vocab_fname,
+                 mwq_aggregator,
+                 subset_num_items=-1):
+
+        EvaluationData.__init__(self, json_fname, cnn_fname, img_id2cnn_region_indeces,
+                                w2v_vocab_fname, w2v_vectors_fname, external_vocab_fname,
+                                subset_num_items)
+        self.aggregator = mwq_aggregator
+
+        if mwq_aggregator == 'avg':
+            self.aggregator = np.mean
+        elif mwq_aggregator == 'max':
+            self.aggregator = np.max
+        else:
+            raise ValueError("aggregator function for multiple word queries must be avg or max")
 
     def _set_X_txt(self):
         # set X_txt for multiple-word-queries.  This is to reproduce the textual queries
         # from the original images. We average the word2vec features to produce one query.
-
+        print "MWQ setting X_txt"
         self.X_txt_mwq = np.zeros((len(self.img_ids), self.w2v_data.get_word2vec_dim()))
         i = 0
         for img_id in self.img_ids:
             words_in_img = self.img_id2words_ext_vocab[img_id]
-            X_txt = self.w2v_data.get_word_vectors_of_word_list(words_in_img) # (n_words_in_img, w2v_dim)
-            self.X_txt_mwq[i,:] = np.mean(X_txt, axis=0)
+            X_txt = self.w2v_data.get_word_vectors_of_word_list(words_in_img)  # (n_words_in_img, w2v_dim)
+
+            self.X_txt_mwq[i, :] = self.aggregator(X_txt, axis=0)
             i += 1
 
 def get_batch_data(exp_config, subset_num_items=-1):
