@@ -1,4 +1,10 @@
-from net.multimodal.data_provider.experiment_data import EvaluationData
+"""
+Test EvaluationDataMWQ. Evaluation Data for Multi-Word Queries
+
+"""
+
+from net.multimodal.data_provider.experiment_data import EvaluationDataMWQ
+from net.multimodal.data_provider.word2vec_data import Word2VecData
 
 from net.multimodal import multimodal_utils
 import numpy as np
@@ -13,9 +19,11 @@ w2v_vocab_fname = '../data/word_vects/glove/vocab.txt'
 w2v_vectors_fname = '../data/word_vects/glove/vocab_vecs.txt'
 external_vocab_fname = '../data/fashion53k/external_vocab/zappos.vocab.txt'
 
-eval_data = EvaluationData(json_fname, cnn_fname, imgid2region_indices,
-                           w2v_vocab_fname, w2v_vectors_fname,
-                           external_vocab_fname, subset_num_items=10)
+eval_data = EvaluationDataMWQ(json_fname, cnn_fname, imgid2region_indices,
+                              w2v_vocab_fname, w2v_vectors_fname,
+                              external_vocab_fname,
+                              mwq_aggregator='avg',
+                              subset_num_items=10)
 
 print "X_img \n", eval_data.X_img
 print "X_txt \n", eval_data.X_txt
@@ -24,7 +32,6 @@ print "img_id2word_ids_ext_vocab \n", eval_data.img_id2word_ids_ext_vocab
 print "ext_vocab_word2img_ids \n", eval_data.ext_vocab_word2img_ids
 print "external_vocab_words \n", eval_data.external_vocab_words
 print "ext_vocab_word2id \n", eval_data.ext_vocab_word2id
-
 
 ######################################
 # Test shapes
@@ -38,7 +45,9 @@ assert len(eval_data.true_words_list) == 10  # there are 10 imgs
 assert len(eval_data.true_words_list[0]) == 2  # first img has only 2 words
 assert len(eval_data.true_word_ids_list[0]) == 2  # first img has only 2 words
 assert eval_data.X_img.shape == (10, 4096)  # there are 10 imgs and 4096 cnn features
-assert eval_data.X_txt.shape == (V, 200)  # V rows and 200 w2v dim
+
+assert eval_data.X_txt.shape == (10, 200)  # n_regions, w2v dim (10, 200)
+
 assert eval_data.y.shape == (10, V)  # num regions, V
 assert len(eval_data.img_id2word_ids_ext_vocab) == 10
 # assert len(eval_data.ext_vocab_word2id) == V  # does not equal V because the dict is incomplete, but this is ok.
@@ -71,4 +80,11 @@ assert eval_data.ext_vocab_word2id["bridesmaid"] == bridesmaid_index
 assert eval_data.img_id2words_ext_vocab[6] == ['bridesmaid', 'dress']
 assert eval_data.img_id2word_ids_ext_vocab[6] == [14, 9]
 
-print "Tests completed"
+######################################
+# Test X_txt
+######################################
+w2v_data = Word2VecData(w2v_vocab_fname, w2v_vectors_fname)
+X_txt_img_6 = w2v_data.get_word_vectors_of_word_list(['bridesmaid', 'dress'])
+X_txt_img_6_mwq = np.mean(X_txt_img_6, axis=0)
+assert np.array_equal(eval_data.X_txt[0, :], X_txt_img_6_mwq)
+assert X_txt_img_6_mwq.shape == (200,)

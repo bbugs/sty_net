@@ -279,7 +279,8 @@ class EvaluationData(ExperimentData):
 
     def _set_y(self):
         """
-
+        y is used to evaluate classification precision and recall. It is
+        not used to calculate ranking peformance
         Creates:
         self.y: Matrix of size num_regions, len(external_vocab_words). Each element
         y[i,j] = +1 or -1, indicates whether region i and word j occurred together
@@ -355,11 +356,7 @@ class EvaluationDataMWQ(EvaluationData):
                  mwq_aggregator,
                  subset_num_items=-1):
 
-        EvaluationData.__init__(self, json_fname, cnn_fname, img_id2cnn_region_indeces,
-                                w2v_vocab_fname, w2v_vectors_fname, external_vocab_fname,
-                                subset_num_items)
         self.aggregator = mwq_aggregator
-
         if mwq_aggregator == 'avg':
             self.aggregator = np.mean
         elif mwq_aggregator == 'max':
@@ -367,18 +364,23 @@ class EvaluationDataMWQ(EvaluationData):
         else:
             raise ValueError("aggregator function for multiple word queries must be avg or max")
 
+        EvaluationData.__init__(self, json_fname, cnn_fname, img_id2cnn_region_indeces,
+                                w2v_vocab_fname, w2v_vectors_fname, external_vocab_fname,
+                                subset_num_items)
+
     def _set_X_txt(self):
         # set X_txt for multiple-word-queries.  This is to reproduce the textual queries
-        # from the original images. We average the word2vec features to produce one query.
+        # from the original images. We average (or max) the word2vec features to produce one query.
         print "MWQ setting X_txt"
-        self.X_txt_mwq = np.zeros((len(self.img_ids), self.w2v_data.get_word2vec_dim()))
+        self.X_txt = np.zeros((len(self.img_ids), self.w2v_data.get_word2vec_dim()))
         i = 0
         for img_id in self.img_ids:
             words_in_img = self.img_id2words_ext_vocab[img_id]
             X_txt = self.w2v_data.get_word_vectors_of_word_list(words_in_img)  # (n_words_in_img, w2v_dim)
 
-            self.X_txt_mwq[i, :] = self.aggregator(X_txt, axis=0)
+            self.X_txt[i, :] = self.aggregator(X_txt, axis=0)
             i += 1
+
 
 def get_batch_data(exp_config, subset_num_items=-1):
     """
