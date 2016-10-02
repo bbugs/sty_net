@@ -50,9 +50,8 @@ class Word2VecData(object):
         i = 0
         for word in word_list:
             if word not in word2id:
-                # seed is set so that we don't get different results every time this is called
-                np.random.seed(42)
-                X_txt[i, :] = np.random.randn(self.word2vec_dim)
+                # if word is not in word2vec, then assign a very common word "the" vector
+                X_txt[i, :] = np.fromstring(linecache.getline(self.w2v_vectors_fname, 1), sep=" ")
                 # print word, " not in word2vec"
                 i += 1
                 continue
