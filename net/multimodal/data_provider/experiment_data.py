@@ -246,10 +246,14 @@ class EvaluationData(ExperimentData):
         self.num_regions_in_split = 0
         self.true_words_list = []  # list of lists in the same order as img_ids, it contains the words of each img
         self.true_word_ids_list = []  # list of lists
+        self.true_img_ids = []  # list of lists
 
         self._set_features()
 
     def _set_aux_dicts(self):
+        # initialize ext_vocab_word2img_ids
+        for word in self.external_vocab_words:
+            self.ext_vocab_word2img_ids[word] = []
 
         for img_id in self.img_ids:
             words_in_img = self.json_file.get_word_list_of_img_id(img_id, remove_stops=True)
@@ -257,8 +261,6 @@ class EvaluationData(ExperimentData):
             self.img_id2word_ids_ext_vocab[img_id] = [self.ext_vocab_word2id[w] for
                                                       w in words_in_img if w in self.external_vocab_words]
             for w in words_in_img:
-                if w not in self.ext_vocab_word2img_ids:
-                    self.ext_vocab_word2img_ids[w] = []
                 self.ext_vocab_word2img_ids[w].append(img_id)
 
     def _set_num_regions_in_split(self):
@@ -276,6 +278,10 @@ class EvaluationData(ExperimentData):
         for img_id in self.img_ids:
             word_ids = self.img_id2word_ids_ext_vocab[img_id]
             self.true_word_ids_list.append(word_ids)
+
+    def _set_true_img_ids(self):
+        for word in self.external_vocab_words:
+            self.true_img_ids.append(self.ext_vocab_word2img_ids[word])
 
     def _set_y(self):
         """
@@ -339,6 +345,7 @@ class EvaluationData(ExperimentData):
         self._set_aux_dicts()
         self._set_true_words_list()
         self._set_true_word_ids_list()
+        self._set_true_img_ids()
         self._set_y()
         self._set_X_img()
         self._set_X_txt()

@@ -106,6 +106,9 @@ if __name__ == "__main__":
 
     # number of image regions
     parser.add_argument('--num_regions_per_img', dest='num_regions_per_img', type=int, default=5)
+    parser.add_argument('--Ks', dest='Ks', type=set, default={1, 5, 10, 15, 20, 30, 75, 100})
+    parser.add_argument('--eval_k', dest='eval_k', type=int, default=5)  # eval P@K, R@K to assess best performance
+    parser.add_argument('--mwq_aggregator', type=str, default='avg')  # or max
 
     # Image CNN (Full Image + Regions) features
     parser.add_argument('--cnn_regions_path', dest='cnn_regions_path', type=str,
@@ -121,7 +124,6 @@ if __name__ == "__main__":
                         default='../data/fashion53k/img_regions/4_regions_cnn/per_split/cnn_fc7_test.txt')
 
     # Image CNN (Full Image only) features
-    # TODO: Make cnn features for full images only
     # TODO: see where num_regions apply
     parser.add_argument('--cnn_full_img_path', dest='cnn_full_img_path', type=str,
                         default='../data/fashion53k/full_img/per_split/')
@@ -176,8 +178,6 @@ if __name__ == "__main__":
     # path to experiment.db
     parser.add_argument('--experiment_db', dest='experiment_db', type=str,
                         default='experiments.db')
-
-    # todo: check out why results are the same. there might be a seed set somewhere?
 
     # local loss params constants
     parser.add_argument('--local_margin', dest='local_margin', type=float, default=1.)

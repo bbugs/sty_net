@@ -130,7 +130,7 @@ def recall_at_k(ytrue, ypred, k):
     return float(len(set.intersection(ypred, ytrue))) / len(ytrue)
 
 
-def f1_score(ytrue, ypred, k):
+def f1_at_k(ytrue, ypred, k):
     """(lst, lst, int) -> float
 
     """
@@ -179,13 +179,16 @@ def avg_prec_recall_all_ks(ytrue_list, ypred_list, Ks):
     assert len(ytrue_list) == len(ypred_list)
 
     performance = {}
-    performance['precision'] = {}
-    performance['recall'] = {}
+    performance['P'] = {}
+    performance['R'] = {}
+    performance['F'] = {}
     for k in Ks:
         p = avg_metric_at_k(precision_at_k, ytrue_list, ypred_list, k)
         r = avg_metric_at_k(recall_at_k, ytrue_list, ypred_list, k)
-        performance['precision'][k] = p
-        performance['recall'][k] = r
+        f1 = avg_metric_at_k(f1_at_k, ytrue_list, ypred_list, k)
+        performance['P'][k] = p
+        performance['R'][k] = r
+        performance['F'][k] = f1
     return performance
 
 
@@ -196,7 +199,7 @@ if __name__ == '__main__':
     k = 5
     p = precision_at_k(true, predicted1, k)
     r = recall_at_k(true, predicted1, k)
-    f1 = f1_score(true, predicted1, k)
+    f1 = f1_at_k(true, predicted1, k)
     print "precision", p
     print "recall", r
     print "f1", f1
@@ -207,7 +210,7 @@ if __name__ == '__main__':
 
     avg_prec = avg_metric_at_k(precision_at_k, true_list, predicted1_list, k)
     avg_recall = avg_metric_at_k(recall_at_k, true_list, predicted1_list, k)
-    avg_f1 = avg_metric_at_k(f1_score, true_list, predicted1_list, k)
+    avg_f1 = avg_metric_at_k(f1_at_k, true_list, predicted1_list, k)
 
     print "avg_prec", avg_prec
     print "avg_recall", avg_recall
@@ -219,10 +222,10 @@ if __name__ == '__main__':
 
     performance = avg_prec_recall_all_ks(true_list, pred_list, Ks=[1, 5])
 
-    assert performance['precision'][1] == 0.75
-    assert performance['precision'][5] == 0.35000000000000003
-    assert performance['recall'][1] == 0.2708333333333333
-    assert performance['recall'][5] == 0.5416666666666666
+    assert performance['P'][1] == 0.75
+    assert performance['P'][5] == 0.35000000000000003
+    assert performance['R'][1] == 0.2708333333333333
+    assert performance['R'][5] == 0.5416666666666666
 
     print performance
 

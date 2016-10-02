@@ -3,7 +3,7 @@
 exp_config = {}
 
 # assume all data has been precomputed in dc['root_path']
-exp_config['root_path'] = root_path = '../'  # assume module is run from Chapter4
+exp_config['root_path'] = root_path = '../'  # assume module is run from sty_net
 exp_config['id'] = 0
 
 # Image CNN (Full Image + Regions) features
@@ -20,7 +20,7 @@ exp_config['cnn_full_img_path_val'] = exp_config['cnn_full_img_path'] + '/cnn_fc
 exp_config['cnn_full_img_path_test'] = exp_config['cnn_full_img_path'] + '/cnn_fc7_test.txt'
 
 # Text features
-exp_config['json_path'] = root_path + 'data/fashion53k/json/with_ngrams/'
+exp_config['json_path'] = root_path + 'data/fashion53k/json/only_zappos/'
 exp_config['json_path_train'] = exp_config['json_path'] + 'dataset_dress_all_train.clean.json'
 exp_config['json_path_val'] = exp_config['json_path'] + 'dataset_dress_all_val.clean.json'
 exp_config['json_path_test'] = exp_config['json_path'] + 'dataset_dress_all_test.clean.json'
@@ -37,17 +37,21 @@ exp_config['train_vocab'] = root_path + '/fashion53k/vocab_per_split/vocab_train
 exp_config['val_vocab'] = root_path + '/fashion53k/vocab_per_split/vocab_val_min_freq_5.txt'  # do we need this ??
 exp_config['test_vocab'] = root_path + '/fashion53k/vocab_per_split/vocab_test_min_freq_5.txt'  # do we need this ??
 
-exp_config['target_vocab_fname'] = exp_config['test_vocab']  #TODO:I think this is unused, but I can use it for img2txt
-
 # path to save checkpoints and reports
 exp_config['checkpoint_path'] = root_path + '/data/fashion53k/sandbox_results/'
 
+####################################################################
+# Set evaluation parameters
+####################################################################
+exp_config['Ks'] = {1, 5, 10, 15, 20, 30, 75, 100}
+exp_config['eval_k'] = 5
+exp_config['mwq_aggregator'] = 'avg'
 
 ####################################################################
 # Set loss parameters
 ####################################################################
 exp_config['reg'] = 1  # regularization
-exp_config['hidden_dim'] = 700  # size of multimodal space
+exp_config['hidden_dim'] = 100  # size of multimodal space
 exp_config['use_finetune_cnn'] = False
 exp_config['use_finetune_w2v'] = False
 

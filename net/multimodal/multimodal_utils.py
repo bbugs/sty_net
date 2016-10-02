@@ -5,7 +5,7 @@ import logging
 import pickle
 import os
 import random
-
+import json
 
 def init_random_weights(n_rows, n_cols=None):
     """

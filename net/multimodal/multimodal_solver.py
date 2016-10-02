@@ -13,7 +13,7 @@ class MultiModalSolver(object):
     """
 
     def __init__(self, model, batch_data, eval_data_train, eval_data_val,
-                 # eval_data_test, eval_data_test_mwq,
+                 eval_data_test, eval_data_test_mwq,
                  num_items_train, exp_config, verbose=True):
         """
         Construct a new Solver instance.
@@ -53,6 +53,8 @@ class MultiModalSolver(object):
 
         self.eval_data_train = eval_data_train
         self.eval_data_val = eval_data_val
+        self.eval_data_test = eval_data_test
+        self.eval_data_test_mwq = eval_data_test_mwq
         # self.X_img_train = eval_data_train.X_img
         # self.X_txt_train = eval_data_train.X_txt
         # self.y_true_img2txt_train = eval_data_train.y_true_img2txt
@@ -69,7 +71,8 @@ class MultiModalSolver(object):
 
         self.start_modulation = exp_config['start_modulation']
         self.id = exp_config['id']
-
+        self.Ks = exp_config['Ks']
+        self.eval_k = exp_config['eval_k']
 
         # Train data
         # self.X_img_train = data['X_img_train']
@@ -122,25 +125,26 @@ class MultiModalSolver(object):
         self.best_params = {}
 
         self.loss_history = []
-
+        self.performance_history =[]
+        self.best_performance = {}
 
         # img2txt
-        self.train_f1_img2txt_history = []
-        self.train_precision_img2txt_history = []
-        self.train_recall_img2txt_history = []
-
-        self.val_f1_img2txt_history = []
-        self.val_precision_img2txt_history = []
-        self.val_recall_img2txt_history = []
-
-        # txt2img
-        self.train_f1_txt2img_history = []
-        self.train_precision_txt2img_history = []
-        self.train_recall_txt2img_history = []
-
-        self.val_f1_txt2img_history = []
-        self.val_precision_txt2img_history = []
-        self.val_recall_txt2img_history = []
+        # self.train_f1_img2txt_history = []
+        # self.train_precision_img2txt_history = []
+        # self.train_recall_img2txt_history = []
+        #
+        # self.val_f1_img2txt_history = []
+        # self.val_precision_img2txt_history = []
+        # self.val_recall_img2txt_history = []
+        #
+        # # txt2img
+        # self.train_f1_txt2img_history = []
+        # self.train_precision_txt2img_history = []
+        # self.train_recall_txt2img_history = []
+        #
+        # self.val_f1_txt2img_history = []
+        # self.val_precision_txt2img_history = []
+        # self.val_recall_txt2img_history = []
 
         # Make a deep copy of the optim_config for each parameter
         self.optim_configs = {}
@@ -171,7 +175,7 @@ class MultiModalSolver(object):
             self.model.params[p] = next_w
             self.optim_configs[p] = next_config
 
-    def check_performance_img2txt(self, eval_data):
+    def ck_perform_classif(self, eval_data):
         """
 
         Inputs:
@@ -186,13 +190,16 @@ class MultiModalSolver(object):
         and thus measure how well the network can retrieve those visual words. But
         this function does not need to know, it just needs +1 or -1 for all region-word pairs
         """
+        performance = {}
         sim_region_word = self.model.loss(eval_data, eval_mode=True)
         y_pred = np.ones(sim_region_word.shape)
         y_pred[sim_region_word < 0] = -1  # when the sim scores are < 0, classification is negative
 
         p, r, f1 = metrics.precision_recall_f1(y_pred, eval_data.y, raw_scores=False)
-
-        return p, r, f1
+        performance['P'] = p
+        performance['R'] = r
+        performance['F'] = f1
+        return performance
 
     # def check_performance_txt2img(self, eval_data):
     #
@@ -248,20 +255,128 @@ class MultiModalSolver(object):
     #
     #     return acc
 
-    def rank_performance_img2txt_all_ks(self, eval_data, Ks):
+    def ck_perform_ranking_img2txt_all_ks(self, eval_data, Ks):
         sim_region_word = self.model.loss(eval_data, eval_mode=True)
         word_ids_pred = np.argsort(-sim_region_word, axis=1).tolist()
-        true_word_ids = eval_data.true_word_ids
+        true_word_ids = eval_data.true_word_ids_list
         performance = metrics.avg_prec_recall_all_ks(true_word_ids, word_ids_pred, Ks)
+        # {'R': {1: 0.27083, 5: 0.54166}, 'P': {1: 0.75, 5: 0.35, 'F': {1: 0.3916, 5: 0.4186}}}
         return performance
 
-    def rank_performance_txt2img_all_ks(self, eval_data, Ks):
+    def ck_perform_ranking_txt2img_all_ks(self, eval_data, Ks):
         sim_word_region = self.model.loss(eval_data, eval_mode=True).T
         img_ids_pred = np.argsort(-sim_word_region, axis=1).tolist()
-        true_img_ids = eval_data.img_ids
+        true_img_ids = eval_data.true_img_ids
         performance = metrics.avg_prec_recall_all_ks(true_img_ids, img_ids_pred, Ks)
+        # {'R': {1: 0.27083, 5: 0.54166}, 'P': {1: 0.75, 5: 0.35, 'F': {1: 0.3916, 5: 0.4186}}}
         return performance
 
+    def compute_performance(self):
+        # Evaluate classification performance precision, recall and f1.
+        # Same values for both tasks when doing classfication performance.
+        classif_performance_train = self.ck_perform_classif(self.eval_data_train)  # eval on train
+        classif_performance_val = self.ck_perform_classif(self.eval_data_val)  # eval on val
+        classif_performance_test = self.ck_perform_classif(self.eval_data_test)
+
+        rank_performance_i2t_train = self.ck_perform_ranking_img2txt_all_ks(self.eval_data_train, self.Ks)
+        rank_performance_i2t_val = self.ck_perform_ranking_img2txt_all_ks(self.eval_data_val, self.Ks)
+        rank_performance_i2t_test = self.ck_perform_ranking_img2txt_all_ks(self.eval_data_test, self.Ks)
+
+        rank_performance_t2i_train = self.ck_perform_ranking_txt2img_all_ks(self.eval_data_train, self.Ks)
+        rank_performance_t2i_val = self.ck_perform_ranking_txt2img_all_ks(self.eval_data_val, self.Ks)
+        rank_performance_t2i_test = self.ck_perform_ranking_txt2img_all_ks(self.eval_data_test, self.Ks)
+
+        rank_performance_mwq_t2i_test = self.ck_perform_ranking_txt2img_all_ks(self.eval_data_test_mwq, self.Ks)
+
+        performance = {}
+        performance['classification'] = {}
+        performance['classification']['train'] = classif_performance_train
+        performance['classification']['val'] = classif_performance_val
+        performance['classification']['test'] = classif_performance_test
+
+        performance['ranking'] = {}
+        performance['ranking']['i2t'] = {}
+        performance['ranking']['i2t']['train'] = rank_performance_i2t_train
+        performance['ranking']['i2t']['val'] = rank_performance_i2t_val
+        performance['ranking']['i2t']['test'] = rank_performance_i2t_test
+
+        performance['ranking']['t2i'] = {}
+        performance['ranking']['t2i']['train'] = rank_performance_t2i_train
+        performance['ranking']['t2i']['val'] = rank_performance_t2i_val
+        performance['ranking']['t2i']['test'] = rank_performance_t2i_test
+
+        performance['ranking']['t2i']['mwq_test'] = rank_performance_mwq_t2i_test
+
+        return performance
+
+    @staticmethod
+    def get_P_R_F_from_performance(performance, mode, task, split, K):
+        """
+        Args:
+            performance:
+            mode: 'ranking' or 'classification'
+            task: 'i2t' or 't2i'
+            split: 'train', 'val', or 'test'
+            K: int
+
+        Returns:
+            P, R, F: precision, recall and F1
+        """
+
+        if mode == 'classification':
+            P = performance[mode][split]['P']
+            R = performance[mode][split]['R']
+            F = performance[mode][split]['F']
+            return P, R, F
+        elif mode == 'ranking':
+            P = performance[mode][task][split]['P'][K]
+            R = performance[mode][task][split]['R'][K]
+            F = performance[mode][task][split]['F'][K]
+            return P, R, F
+        else:
+            raise ValueError("mode should be either classification or ranking")
+
+    def mk_status_msg(self, iter_num, performance):
+
+        msg = "\t id_{} \t epoch_{} \t".format(self.exp_config['id'], self.epoch)
+        msg += "iter: {} \t".format(iter_num)
+        msg += "reg: {} \t".format(self.exp_config['reg'])
+        msg += "lr: {} \t".format(self.exp_config['optim_config']['learning_rate'])
+        msg += "hd: {} \n".format(self.exp_config['hidden_dim'])
+
+        mode = 'ranking'
+        msg += mode + '\n'
+        tasks = ['i2t', 't2i']
+        splits = ['val', 'train', 'test']
+        ks = [1, 5, 10, 20, 100]
+
+        for task in tasks:
+            for split in splits:
+                for k in ks:
+                    P, R, F = self.get_P_R_F_from_performance(performance, mode, task, split, k)
+                    msg += "{0} {1} \t P{2} {3:.4f} \t R{2} {4:.4f} \t".\
+                        format(task, split, k, P, R, )
+                msg += '\n'
+            msg += '\n'
+        # msg += '\n'
+
+        task = 't2i'
+        split = 'mwq_test'
+        for k in ks:
+            P, R, F = self.get_P_R_F_from_performance(performance, mode, task=task, split=split, K=k)
+            msg += "{0} {1} \t P{2} {3:.4f} \t R{2} {4:.4f} \t".\
+                format(task, split, k, P, R, )
+        msg += '\n\n'
+
+        mode = 'classification'
+        msg += 'classif' + '\n'
+        task = None  # same for both tasks
+        k = None  # k is not relevant in classfication mode
+        for split in splits:
+            P, R, F = self.get_P_R_F_from_performance(performance, mode, task, split, k)
+            msg += "i2t {0} \t P {1:.4f} \t R {2:.4f}".format(split, P, R)
+            msg += "\n"
+        return msg
 
     def train(self):
         """
@@ -292,7 +407,10 @@ class MultiModalSolver(object):
 
             if t == 0: loss0 = self.loss_history[0]
             if self.loss_history[t] > 10 * loss0:
-                abort_msg = "id_{} \t loss is exploiding. ABORT!".format(self.id)
+                abort_msg = "id_{} \t epoch_{} \t reg_{} \t lr_{} \t hd_{} \t loss is exploiding. ABORT!".\
+                    format(self.id, self.epoch, self.exp_config['reg'],
+                           self.exp_config['optim_config']['learning_rate'],
+                           self.exp_config['hidden_dim'])
                 print abort_msg
                 logging.info(abort_msg)
                 self.status = 'aborted'
@@ -328,40 +446,39 @@ class MultiModalSolver(object):
                 report['epoch'] = self.epoch
                 report['exp_config'] = self.exp_config
 
-                # Evaluate precision, recall and f1 on both tasks
-                p_i2t_t, r_i2t_t, f1_i2t_t = self.check_performance_img2txt(self.eval_data_train)  # eval on train
+                # compute peformance
+                performance = self.compute_performance()
 
-                p_i2t_v, r_i2t_v, f1_i2t_v = self.check_performance_img2txt(self.eval_data_val)  # eval on val
+                # Take the avg of f1@K for img2txt and txt2img
+                f1_val_score_at_eval_k = 0.5 * performance['ranking']['i2t']['val']['F'][self.eval_k] + \
+                                    0.5 * performance['ranking']['t2i']['val']['F'][self.eval_k]
 
-                # p_t2i_t, r_t2i_t, f1_t2i_t = self.check_performance_txt2img(self.X_img_train, self.X_txt_train,
-                #                                                             self.y_true_img2txt_train.T)
-                #
-                # p_t2i_v, r_t2i_v, f1_t2i_v = self.check_performance_txt2img(self.X_img_val, self.X_txt_val,
-                #                                                             self.y_true_img2txt_val.T)
-                # TODO: look into whether it should be that txt2img and img2txt yeild same results
+                f1_train_score_at_eval_k = 0.5 * performance['ranking']['i2t']['train']['F'][self.eval_k] + \
+                                      0.5 * performance['ranking']['t2i']['train']['F'][self.eval_k]
+
                 # TODO: is check_performance compatible with associat_loss?
 
+                self.performance_history.append((self.epoch, performance))
                 # Add to report
-                report['img2txt'] = {}
-                report['img2txt']['train_current_performance'] = {'p': p_i2t_t, 'r': r_i2t_t, 'f1': f1_i2t_t}
-                report['img2txt']['val_current_performance'] = {'p': p_i2t_v, 'r': r_i2t_v, 'f1': f1_i2t_v}
+                report['performance'] = performance
+                report['performance_history'] = self.performance_history
 
                 # report['txt2img'] = {}
                 # report['txt2img']['train_current_performance'] = {'p': p_t2i_t, 'r': r_t2i_t, 'f1': f1_t2i_t}
                 # report['txt2img']['val_current_performance'] = {'p': p_t2i_v, 'r': r_t2i_v, 'f1': f1_t2i_v}
 
                 # overall average f1 of both tasks both tasks img2txt & txt2img
-                f1_train_score = f1_i2t_t
-                f1_val_score = f1_i2t_v
+                # f1_train_score = f1_i2t_t
+                # f1_val_score = f1_i2t_v
 
                 # img2txt
-                self.train_f1_img2txt_history.append(f1_i2t_t)
-                self.train_precision_img2txt_history.append(p_i2t_t)
-                self.train_recall_img2txt_history.append(r_i2t_t)
-
-                self.val_f1_img2txt_history.append(f1_i2t_v)
-                self.val_precision_img2txt_history.append(p_i2t_v)
-                self.val_recall_img2txt_history.append(r_i2t_v)
+                # self.train_f1_img2txt_history.append(f1_i2t_t)
+                # self.train_precision_img2txt_history.append(p_i2t_t)
+                # self.train_recall_img2txt_history.append(r_i2t_t)
+                #
+                # self.val_f1_img2txt_history.append(f1_i2t_v)
+                # self.val_precision_img2txt_history.append(p_i2t_v)
+                # self.val_recall_img2txt_history.append(r_i2t_v)
 
                 # txt2img
                 # self.train_f1_txt2img_history.append(f1_t2i_t)
@@ -372,13 +489,13 @@ class MultiModalSolver(object):
                 # self.val_precision_txt2img_history.append(p_t2i_v)
                 # self.val_recall_txt2img_history.append(r_t2i_v)
 
-                report['img2txt']['train_history'] = {'p': self.train_precision_img2txt_history,
-                                                      'r': self.train_recall_img2txt_history,
-                                                      'f1': self.train_f1_img2txt_history}
-
-                report['img2txt']['val_history'] = {'p': self.val_precision_img2txt_history,
-                                                    'r': self.val_recall_img2txt_history,
-                                                    'f1': self.val_f1_img2txt_history}
+                # report['img2txt']['train_history'] = {'p': self.train_precision_img2txt_history,
+                #                                       'r': self.train_recall_img2txt_history,
+                #                                       'f1': self.train_f1_img2txt_history}
+                #
+                # report['img2txt']['val_history'] = {'p': self.val_precision_img2txt_history,
+                #                                     'r': self.val_recall_img2txt_history,
+                #                                     'f1': self.val_f1_img2txt_history}
 
                 # report['txt2img']['train_history'] = {'p': self.train_precision_txt2img_history,
                 #                                       'r': self.train_recall_txt2img_history,
@@ -390,9 +507,9 @@ class MultiModalSolver(object):
 
                 # Check if performance is best so far, and if so save report and
                 # keep best weights in self.best_params
-                if f1_val_score > self.best_val_f1_score:
-                    self.best_val_f1_score = f1_val_score
-                    self.train_f1_of_best_val = f1_train_score
+                if f1_val_score_at_eval_k > self.best_val_f1_score:
+                    self.best_val_f1_score = f1_val_score_at_eval_k
+                    self.train_f1_of_best_val = f1_train_score_at_eval_k
                     self.best_epoch = self.epoch
                     for k, v in self.model.params.iteritems():
                         self.best_params[k] = v.copy()
@@ -409,10 +526,6 @@ class MultiModalSolver(object):
                                           )
                     multimodal_utils.write_report(report_fname, report, self.exp_config, self.best_val_f1_score)
 
-                # get the best train score
-                # if f1_train_score > self.best_train_f1_score:
-                #     self.best_train_f1_score = f1_train_score
-
                 if last_it:  # save an endreport on last iteration
                     report['model'] = {}  # no need to save weights on end report
                     time_stamp = time.strftime('%Y_%m_%d_%H%M')
@@ -426,36 +539,10 @@ class MultiModalSolver(object):
                         pickle.dump(report, f)
                     logging.info("saved report to {}".format(end_report_fname))
 
-                msg = "id_{} ".format(self.exp_config['id'])
-
-                msg += "iter {} \t train_f1 {:.4f} \t val_f1 {:.4f}".format(t+1, f1_train_score, f1_val_score)
-
-                msg += " \t i2t train p {:.4f} r {:.4f} f1 {:.4f}".format(p_i2t_t, r_i2t_t, f1_i2t_t)
-
-                msg += " \t i2t val p {:.4f} r {:.4f} f1 {:.4f}".format(p_i2t_v, r_i2t_v, f1_i2t_v)
-
-                # msg += " \t t2i train p {:.4f} r {:.4f} f1 {:.4f}".format(p_t2i_t, r_t2i_t, f1_t2i_t)
-                #
-                # msg += " \t t2i val p {:.4f} r {:.4f} f1 {:.4f}".format(p_t2i_v, r_t2i_v, f1_t2i_v)
-
+                msg = self.mk_status_msg(iter_num=t, performance=performance)
+                print msg
                 logging.info(msg)
 
-                if self.verbose:
-
-                    print msg
-
-                    # print '(Epoch %d / %d) train f1: %f; val_f1: %f' % (
-                    #     self.epoch, self.num_epochs, f1_train_score, f1_val_score)
-                    #
-                    # print "\nImg2Txt Performance"
-                    # print "TRAIN f1: {}; \t p: {}; \t r: {}".format(f1_i2t_t, p_i2t_t, r_i2t_t)
-                    # print "VAL f1: {}; \t p: {}; \t r: {}".format(f1_i2t_v, p_i2t_v, r_i2t_v)
-                    #
-                    # print "\nTxt2Img Performance"
-                    # print "TRAIN f1: {}; \t p: {}; \t r: {}".format(f1_t2i_t, p_t2i_t, r_t2i_t)
-                    # print "VAL f1: {}; \t p: {}; \t r: {}".format(f1_t2i_v, p_t2i_v, r_t2i_v)
-
-                    print "\n"
             self.status = 'done'
 
         logging.info("id_{} Finished {}\n".format(self.exp_config['id'], time.strftime('%Y_%m_%d_%H%M')))

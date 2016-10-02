@@ -45,9 +45,12 @@ batch_data = BatchData(json_fname_train, cnn_fname_train,
 # Train Evaluation Data
 # ----------------------------------------------
 print "setting evaluation data for train split"
-# TODO: the evaluation data for both train and val should be with cnn for the full region
 external_vocab_fname = test_data_config.exp_config['external_vocab']
-
+cnn_fname_train = test_data_config.exp_config['cnn_full_img_path_train']
+num_regions_per_img = 1
+imgid2region_indices_train = multimodal_utils.mk_toy_img_id2region_indices(json_fname_train,
+                                                                           num_regions_per_img=1, # For eval data, this is 1
+                                                                           subset_num_items=-1)
 eval_data_train = EvaluationData(json_fname_train, cnn_fname_train, imgid2region_indices_train,
                                  w2v_vocab_fname, w2v_vectors_fname,
                                  external_vocab_fname, subset_num_items=50) # TODO: set to -1 on the real experiments
@@ -56,14 +59,44 @@ eval_data_train = EvaluationData(json_fname_train, cnn_fname_train, imgid2region
 # ----------------------------------------------
 print "setting evaluation data for val split"
 json_fname_val = test_data_config.exp_config['json_path_val']
-cnn_fname_val = test_data_config.exp_config['cnn_regions_path_val']
+cnn_fname_val = test_data_config.exp_config['cnn_full_img_path_val']
 imgid2region_indices_val = multimodal_utils.mk_toy_img_id2region_indices(json_fname_val,
-                                                                         num_regions_per_img=num_regions_per_img,
+                                                                         num_regions_per_img=1,  # For eval data, this is 1
                                                                          subset_num_items=-1)
 
 eval_data_val = EvaluationData(json_fname_val, cnn_fname_val, imgid2region_indices_val,
                                w2v_vocab_fname, w2v_vectors_fname,
                                external_vocab_fname, subset_num_items=20) # TODO: set to -1 on the real experiments
+
+# ______________________________________________
+# Test Evaluation Data
+# ----------------------------------------------
+print "setting evaluation data for test split"
+json_fname_test = test_data_config.exp_config['json_path_test']
+cnn_fname_test = test_data_config.exp_config['cnn_full_img_path_test']
+imgid2region_indices_test = multimodal_utils.mk_toy_img_id2region_indices(json_fname_test,
+                                                                          num_regions_per_img=1, # For eval data, this is 1
+                                                                          subset_num_items=-1)
+
+eval_data_test = EvaluationData(json_fname_test, cnn_fname_test, imgid2region_indices_test,
+                                w2v_vocab_fname, w2v_vectors_fname,
+                                external_vocab_fname, subset_num_items=20) # TODO: set to -1 on the real experiments
+
+# ______________________________________________
+# Multi-Word Queries Test Evaluation Data
+# ----------------------------------------------
+print "setting evaluation data for test split multiple word queries"
+json_fname_test = test_data_config.exp_config['json_path_test']
+cnn_fname_test = test_data_config.exp_config['cnn_full_img_path_test']
+imgid2region_indices_test = multimodal_utils.mk_toy_img_id2region_indices(json_fname_test,
+                                                                          num_regions_per_img=1, # For eval data, this is 1
+                                                                          subset_num_items=-1)
+
+eval_data_test_mwq = EvaluationData(json_fname_test, cnn_fname_test, imgid2region_indices_test,
+                                    w2v_vocab_fname, w2v_vectors_fname,
+                                    external_vocab_fname, subset_num_items=20) # TODO: set to -1 on the real experiments
+
+
 
 ##############################################
 # Set the model
@@ -112,7 +145,9 @@ mm_net.set_local_hyperparams(local_margin=local_margin, local_scale=local_scale,
 ##############################################
 # Train model with solver
 ##############################################
-solver = MultiModalSolver(mm_net, batch_data, eval_data_train, eval_data_val,
+solver = MultiModalSolver(mm_net, batch_data,
+                          eval_data_train, eval_data_val,
+                          eval_data_test, eval_data_test_mwq,
                           num_items_train, test_data_config.exp_config, verbose=True)
 # uselocal=uselocal,
 # useglobal=useglobal,
