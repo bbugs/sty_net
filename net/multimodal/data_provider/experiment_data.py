@@ -257,9 +257,10 @@ class EvaluationData(ExperimentData):
 
         for img_id in self.img_ids:
             words_in_img = self.json_file.get_word_list_of_img_id(img_id, remove_stops=True)
-            self.img_id2words_ext_vocab[img_id] = [w for w in words_in_img if w in self.external_vocab_words]
+            words_in_img = [w for w in words_in_img if w in self.external_vocab_words]
+            self.img_id2words_ext_vocab[img_id] = words_in_img
             self.img_id2word_ids_ext_vocab[img_id] = [self.ext_vocab_word2id[w] for
-                                                      w in words_in_img if w in self.external_vocab_words]
+                                                      w in words_in_img]
             for w in words_in_img:
                 self.ext_vocab_word2img_ids[w].append(img_id)
 
@@ -375,6 +376,10 @@ class EvaluationDataMWQ(EvaluationData):
                                 w2v_vocab_fname, w2v_vectors_fname, external_vocab_fname,
                                 subset_num_items)
 
+    def _set_true_img_ids(self):
+        for img_id in self.img_ids:
+            self.true_img_ids.append([img_id])
+
     def _set_X_txt(self):
         # set X_txt for multiple-word-queries.  This is to reproduce the textual queries
         # from the original images. We average (or max) the word2vec features to produce one query.
@@ -448,7 +453,7 @@ def get_eval_data(exp_config, subset_train=-1, subset_val=-1, subset_test=-1):
     eval_data_train = EvaluationData(json_fname_train, cnn_fname_train, imgid2region_indices_train,
                                      w2v_vocab_fname, w2v_vectors_fname,
                                      external_vocab_fname,
-                                     subset_num_items=subset_train)  # TODO: set to -1 on the real experiments
+                                     subset_num_items=subset_train)
     # ______________________________________________
     # Val Evaluation Data
     # ----------------------------------------------
@@ -461,7 +466,7 @@ def get_eval_data(exp_config, subset_train=-1, subset_val=-1, subset_test=-1):
 
     eval_data_val = EvaluationData(json_fname_val, cnn_fname_val, imgid2region_indices_val,
                                    w2v_vocab_fname, w2v_vectors_fname,
-                                   external_vocab_fname, subset_num_items=subset_val)  # TODO: set to -1 on the real experiments
+                                   external_vocab_fname, subset_num_items=subset_val)
 
     # ______________________________________________
     # Test Evaluation Data
@@ -476,7 +481,22 @@ def get_eval_data(exp_config, subset_train=-1, subset_val=-1, subset_test=-1):
     eval_data_test = EvaluationData(json_fname_test, cnn_fname_test, imgid2region_indices_test,
                                     w2v_vocab_fname, w2v_vectors_fname,
                                     external_vocab_fname,
-                                    subset_num_items=subset_test)  # TODO: set to -1 on the real experiments
+                                    subset_num_items=subset_test)
 
-    return eval_data_train, eval_data_val, eval_data_test
+    # ______________________________________________
+    # Test Evaluation Data MWQ
+    # ----------------------------------------------
+    print "setting evaluation data for test split MWQ"
+    json_fname_test = exp_config['json_path_test']
+    cnn_fname_test = exp_config['cnn_full_img_path_test']
+    imgid2region_indices_test = multimodal_utils.mk_toy_img_id2region_indices(json_fname_test,
+                                                                              num_regions_per_img=num_regions_per_img,
+                                                                              subset_num_items=-1)
+
+    eval_data_test_mwq = EvaluationDataMWQ(json_fname_test, cnn_fname_test, imgid2region_indices_test,
+                                           w2v_vocab_fname, w2v_vectors_fname,
+                                           external_vocab_fname, mwq_aggregator=exp_config['mwq_aggregator'],
+                                           subset_num_items=subset_test)
+
+    return eval_data_train, eval_data_val, eval_data_test, eval_data_test_mwq
 

@@ -456,6 +456,9 @@ class MultiModalSolver(object):
                 f1_train_score_at_eval_k = 0.5 * performance['ranking']['i2t']['train']['F'][self.eval_k] + \
                                       0.5 * performance['ranking']['t2i']['train']['F'][self.eval_k]
 
+                i2t_test_prec_at_eval_k = performance['ranking']['i2t']['test']['P'][self.eval_k]
+                i2t_test_recall_at_eval_k = performance['ranking']['i2t']['test']['R'][self.eval_k]
+
                 # TODO: is check_performance compatible with associat_loss?
 
                 self.performance_history.append((self.epoch, performance))
@@ -516,14 +519,17 @@ class MultiModalSolver(object):
                     report['model'] = self.best_params
 
                     report_fname = 'report_valf1_{0:.4f}_id_{1}_hd_{2}_' \
-                                   'l_{3:.1f}_g_{4:.1f}_a_{5:.1f}.pkl'.\
+                                   'l_{3:.1f}_g_{4:.1f}_a_{5:.1f}_e_{6}_p_{7:.4f}_r_{8:.4f}.pkl'.\
                                    format(self.best_val_f1_score,
                                           self.id,
                                           self.model.h,
                                           self.exp_config['use_local'],
                                           self.exp_config['use_global'],
                                           self.exp_config['use_associat'],
-                                          )
+                                          self.epoch,
+                                          i2t_test_prec_at_eval_k,
+                                          i2t_test_recall_at_eval_k)
+
                     multimodal_utils.write_report(report_fname, report, self.exp_config, self.best_val_f1_score)
 
                 if last_it:  # save an endreport on last iteration
