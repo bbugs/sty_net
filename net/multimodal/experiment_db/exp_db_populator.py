@@ -28,8 +28,8 @@ def populate_db(db_fname, n_exps):
     config['done'] = False
 
     for i in range(n_exps):
-        reg = 10 ** random.uniform(-8, 2)  # regularization
-        lr = 10 ** random.uniform(-8, 0)  # learning rate
+        reg = 10 ** random.uniform(-10, -6)  # regularization
+        lr = 10 ** random.uniform(-8, -2)  # learning rate
         hd = random.sample(hidden_dims, 1)[0]  # choose one element from hidden dims
 
         config['reg'] = reg

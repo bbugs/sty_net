@@ -242,15 +242,19 @@ class EvaluationData(ExperimentData):
         self.img_id2words_ext_vocab = {}
         self.img_id2word_ids_ext_vocab = {}
         self.ext_vocab_word2img_ids = {}
+        self.ext_word_id2cnn_indices = {}
+        self.cnn_index2img_id = {}
 
         self.num_regions_in_split = 0
         self.true_words_list = []  # list of lists in the same order as img_ids, it contains the words of each img
         self.true_word_ids_list = []  # list of lists
         self.true_img_ids = []  # list of lists
+        self.true_cnn_indices = []  # list of lists
 
         self._set_features()
 
     def _set_aux_dicts(self):
+        self.cnn_index2img_id = multimodal_utils.mk_cnn_region_index2img_id(self.img_id2cnn_region_indeces)
         # initialize ext_vocab_word2img_ids
         for word in self.external_vocab_words:
             self.ext_vocab_word2img_ids[word] = []
@@ -263,6 +267,8 @@ class EvaluationData(ExperimentData):
                                                       w in words_in_img]
             for w in words_in_img:
                 self.ext_vocab_word2img_ids[w].append(img_id)
+
+        self._set_true_cnn_indices()
 
     def _set_num_regions_in_split(self):
         for img_id in self.img_ids:
@@ -283,6 +289,26 @@ class EvaluationData(ExperimentData):
     def _set_true_img_ids(self):
         for word in self.external_vocab_words:
             self.true_img_ids.append(self.ext_vocab_word2img_ids[word])
+
+    def _set_ext_word_id2cnn_index(self):
+        # the index in cnn file of correct
+        for word in self.external_vocab_words:
+            img_ids = self.ext_vocab_word2img_ids[word]
+            word_id = self.ext_vocab_word2id[word]
+            if word_id not in self.ext_word_id2cnn_indices:
+                self.ext_word_id2cnn_indices[word_id] = []
+            for img_id in img_ids:
+                region_indices = self.img_id2cnn_region_indeces[img_id]
+                for i in region_indices:
+                    self.ext_word_id2cnn_indices[word_id].append(i)
+
+    def _set_true_cnn_indices(self):
+        self._set_ext_word_id2cnn_index()
+        # for the set of word ids in external vocab,
+        # make a list of the correct cnn indices where the word occurs
+        for word_id in range(len(self.external_vocab_words)):
+            cnn_indices = self.ext_word_id2cnn_indices[word_id]
+            self.true_cnn_indices.append(cnn_indices)
 
     def _set_y(self):
         """
@@ -379,6 +405,10 @@ class EvaluationDataMWQ(EvaluationData):
     def _set_true_img_ids(self):
         for img_id in self.img_ids:
             self.true_img_ids.append([img_id])
+
+    def _set_true_cnn_indices(self):
+        self.true_cnn_indices = [[i] for i in range(self.num_regions_in_split)]
+
 
     def _set_X_txt(self):
         # set X_txt for multiple-word-queries.  This is to reproduce the textual queries

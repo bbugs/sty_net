@@ -265,9 +265,9 @@ class MultiModalSolver(object):
 
     def ck_perform_ranking_txt2img_all_ks(self, eval_data, Ks):
         sim_word_region = self.model.loss(eval_data, eval_mode=True).T
-        img_ids_pred = np.argsort(-sim_word_region, axis=1).tolist()
-        true_img_ids = eval_data.true_img_ids
-        performance = metrics.avg_prec_recall_all_ks(true_img_ids, img_ids_pred, Ks)
+        cnn_indices_pred = np.argsort(-sim_word_region, axis=1).tolist()
+        true_cnn_indices = eval_data.true_cnn_indices
+        performance = metrics.avg_prec_recall_all_ks(true_cnn_indices, cnn_indices_pred, Ks)
         # {'R': {1: 0.27083, 5: 0.54166}, 'P': {1: 0.75, 5: 0.35, 'F': {1: 0.3916, 5: 0.4186}}}
         return performance
 

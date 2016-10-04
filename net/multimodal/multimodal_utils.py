@@ -5,6 +5,7 @@ import logging
 import pickle
 import os
 import random
+import json
 
 
 def init_random_weights(n_rows, n_cols=None):
@@ -61,6 +62,7 @@ def write_report(new_report_fname, new_report, exp_config, current_val_f1):
         # save and return
         with open(report_path + new_report_fname, "wb") as f:
             pickle.dump(new_report, f)
+
         logging.info("id_{} saved report to {}".format(exp_config['id'], new_report_fname))
         return
 
@@ -105,6 +107,16 @@ def mk_toy_img_id2region_indices(json_fname, num_regions_per_img, subset_num_ite
             region_index += 1
 
     return img_id2region_indices
+
+
+def mk_cnn_region_index2img_id(img_id2region_indices):
+    cnn_region_index2img_id = {}
+    for img_id in img_id2region_indices:
+        region_indices = img_id2region_indices[img_id]
+        for region_index in region_indices:
+            cnn_region_index2img_id[region_index] = img_id
+    return cnn_region_index2img_id
+
 
 
 def get_num_lines_from_file(fname):

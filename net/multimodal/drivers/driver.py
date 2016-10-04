@@ -125,6 +125,7 @@ def main(main_args):
         # write to database results of experiment
         session.commit()
         print "finished item {}".format(exp_config['id'])
+        i += 1
 
     return
 
@@ -138,7 +139,7 @@ if __name__ == "__main__":
     # evaluation parameters
     parser.add_argument('--Ks', dest='Ks', default=[1, 5, 10, 15, 20, 30, 75, 100])
     parser.add_argument('--eval_k', dest='eval_k', type=int, default=10)  # eval P@K, R@K to assess best performance
-    parser.add_argument('--mwq_aggregator', type=str, default='avg')  # or max
+    parser.add_argument('--mwq_aggregator', type=str, default='max')  # or max
 
     # Image CNN (Full Image + Regions) features
     parser.add_argument('--cnn_regions_path', dest='cnn_regions_path', type=str,
@@ -233,7 +234,7 @@ if __name__ == "__main__":
     parser.add_argument("-t", dest="num_threads", default=1, help="number of threads")
 
     # number of experiments
-    parser.add_argument('--num_exps', dest='num_exps', type=int, default=48)  # number of conditions on database
+    parser.add_argument('--num_exps', dest='num_exps', type=int, default=100)  # number of conditions on database
 
     # number of items for train, val and test
     parser.add_argument('--num_items_train', dest='num_items_train', type=int, default=1000)  # 48,689

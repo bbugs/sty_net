@@ -50,7 +50,7 @@ exp_config['mwq_aggregator'] = 'avg'
 ####################################################################
 # Set loss parameters
 ####################################################################
-exp_config['reg'] = 1  # regularization
+exp_config['reg'] = 0  # regularization
 exp_config['hidden_dim'] = 100  # size of multimodal space
 exp_config['use_finetune_cnn'] = False
 exp_config['use_finetune_w2v'] = False
@@ -80,13 +80,13 @@ exp_config['use_associat'] = 0.
 ####################################################################
 exp_config['update_rule'] = 'sgd'
 
-optim_config={'learning_rate': 1e-6}
+optim_config={'learning_rate': 1e-7}
 exp_config['optim_config'] = optim_config
 
-exp_config['lr_decay'] = 0.95
+exp_config['lr_decay'] = 1
 
-exp_config['print_every'] = 2  # print loss
-exp_config['num_epochs'] = 7
+exp_config['print_every'] = 10  # print loss
+exp_config['num_epochs'] = 100
 exp_config['batch_size'] = 20
 
 
