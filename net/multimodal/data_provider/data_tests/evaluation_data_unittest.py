@@ -1,4 +1,4 @@
-from net.multimodal.data_provider.experiment_data import EvaluationData
+from net.multimodal.data_provider.eval_data_class import EvaluationData
 
 from net.multimodal import multimodal_utils
 import numpy as np

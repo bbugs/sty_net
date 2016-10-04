@@ -3,7 +3,8 @@ from net.multimodal.data_provider.data_tests import test_data_config
 import numpy as np
 import matplotlib.pyplot as plt
 from net.multimodal.multimodal_solver import MultiModalSolver
-from net.multimodal.data_provider.experiment_data import EvaluationData, EvaluationDataMWQ
+from net.multimodal.data_provider.experiment_data import EvaluationDataMWQ
+from net.multimodal.data_provider.eval_data_class import EvaluationData, EvaluationDataMWQ
 from net.multimodal import multimodal_utils as mm_utils
 from net.multimodal import experiment
 from net.multimodal.evaluation import metrics

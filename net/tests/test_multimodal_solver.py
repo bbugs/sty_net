@@ -1,7 +1,8 @@
 
 import logging
 import time
-from net.multimodal.data_provider.experiment_data import BatchData, EvaluationData
+from net.multimodal.data_provider.eval_data_class import EvaluationData
+from net.multimodal.data_provider.batch_class import BatchData
 from net.multimodal.data_provider.cnn_data import CnnData
 from net.multimodal.data_provider.word2vec_data import Word2VecData
 from net.multimodal import multimodal_net

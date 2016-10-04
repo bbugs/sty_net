@@ -1,5 +1,4 @@
-
-from net.multimodal.data_provider.experiment_data import BatchData
+from net.multimodal.data_provider.batch_class import BatchData
 
 from net.multimodal.data_provider.data_tests import test_data_config
 from net.multimodal import multimodal_utils

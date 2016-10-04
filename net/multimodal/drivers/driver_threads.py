@@ -1,7 +1,8 @@
 
 import logging
 import time
-from net.multimodal.data_provider.experiment_data import get_batch_data, get_eval_data
+from net.multimodal.data_provider.eval_data_class import get_eval_data
+from net.multimodal.data_provider.batch_class import get_batch_data
 from net.multimodal.multimodal_solver import MultiModalSolver
 from net.multimodal import experiment
 from net.multimodal.experiment_db import exp_db_populator

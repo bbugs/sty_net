@@ -3,7 +3,7 @@ Test EvaluationDataMWQ. Evaluation Data for Multi-Word Queries
 
 """
 
-from net.multimodal.data_provider.experiment_data import EvaluationDataMWQ
+from net.multimodal.data_provider.eval_data_class import EvaluationDataMWQ
 from net.multimodal.data_provider.word2vec_data import Word2VecData
 from net.multimodal.data_provider import cnn_data
 
