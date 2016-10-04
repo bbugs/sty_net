@@ -10,14 +10,6 @@ from net.multimodal.evaluation import metrics
 import json
 
 
-def ck_perform_ranking_txt2img_all_ks(model, eval_data, Ks):
-    sim_word_region = model.loss(eval_data, eval_mode=True).T
-    cnn_indices_pred = np.argsort(-sim_word_region, axis=1).tolist()
-    true_cnn_indices = eval_data.true_cnn_indices
-    performance = metrics.avg_prec_recall_all_ks(true_cnn_indices, cnn_indices_pred, Ks)
-    # {'R': {1: 0.27083, 5: 0.54166}, 'P': {1: 0.75, 5: 0.35, 'F': {1: 0.3916, 5: 0.4186}}}
-    return performance
-
 ckpoint_path = '/Users/susanaparis/Documents/Belgium/Chapter4/data/fashion53k/promising_reports/paris/'
 # fname = ckpoint_path + 'report_valf1_0.0420_id_41_hd_800_l_1.0_g_0.0_a_0.0_e_17_p_0.0771_r_0.1017.pkl'
 fname = ckpoint_path + 'report_valf1_0.1166_id_41_hd_500_l_1.0_g_0.0_a_0.0_e_0_p_0.2041_r_0.3163.pkl'
