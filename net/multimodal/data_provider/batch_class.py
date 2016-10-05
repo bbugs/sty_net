@@ -212,7 +212,8 @@ def get_batch_data(exp_config, subset_num_items=-1):
     json_fname_train = exp_config['json_path_train']
     cnn_fname_train = exp_config['cnn_regions_path_train']
     num_regions_per_img = exp_config['num_regions_per_img']  # TODO: replace this by the actual num_regions_per_img
-    imgid2region_indices_train = multimodal_utils.mk_toy_img_id2region_indices(json_fname_train,
+    imgid2region_indices_train = multimodal_utils.mk_toy_img_id2region_indices(json_fname=json_fname_train,
+                                                                               cnn_fname=cnn_fname_train,
                                                                                num_regions_per_img=num_regions_per_img,
                                                                                subset_num_items=-1)
     w2v_vocab_fname = exp_config['word2vec_vocab']

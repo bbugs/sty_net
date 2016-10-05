@@ -6,6 +6,7 @@ from net.multimodal import multimodal_utils
 json_fname = test_data_config.exp_config['json_path_test']
 cnn_fname = test_data_config.exp_config['cnn_regions_path_test']
 imgid2region_indices = multimodal_utils.mk_toy_img_id2region_indices(json_fname,
+                                                                     cnn_fname=cnn_fname,
                                                                      num_regions_per_img=5,
                                                                      subset_num_items=-1)
 w2v_vocab_fname = test_data_config.exp_config['word2vec_vocab']

@@ -1,5 +1,6 @@
-from net.multimodal.data_provider.cnn_data import CnnData, check_num_regions
-from net.multimodal.data_provider.json_data import JsonFile, check_img_ids
+from net.multimodal.data_provider.cnn_data import CnnData
+from net.multimodal.data_provider.json_data import JsonFile
+from net.multimodal.multimodal_utils import check_img_ids, check_num_regions
 from net.multimodal.data_provider.word2vec_data import Word2VecData
 
 

@@ -5,8 +5,7 @@ import numpy as np
 
 json_fname = '../data/fashion53k/json/only_zappos/dataset_dress_all_test.clean.json'
 cnn_fname = '../data/fashion53k/full_img/per_split/cnn_fc7_test.txt'
-imgid2region_indices = multimodal_utils.mk_toy_img_id2region_indices(json_fname,
-                                                                     num_regions_per_img=1,
+imgid2region_indices = multimodal_utils.mk_toy_img_id2region_indices(json_fname, num_regions_per_img=1,
                                                                      subset_num_items=-1)
 
 w2v_vocab_fname = '../data/word_vects/glove/vocab.txt'

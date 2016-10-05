@@ -2,7 +2,7 @@
 Test EvaluationDataMWQ. Evaluation Data for Multi-Word Queries
 
 """
-
+import net.multimodal.multimodal_utils
 from net.multimodal.data_provider.eval_data_class import EvaluationDataMWQ
 from net.multimodal.data_provider.word2vec_data import Word2VecData
 from net.multimodal.data_provider import cnn_data
@@ -13,10 +13,9 @@ import numpy as np
 json_fname = '../data/fashion53k/json/only_zappos/dataset_dress_all_test.clean.json'
 cnn_fname = '../data/fashion53k/full_img/per_split/cnn_fc7_test.txt'
 imgid2region_indices = multimodal_utils.mk_toy_img_id2region_indices(json_fname,
+                                                                     cnn_fname=cnn_fname,
                                                                      num_regions_per_img=1,
                                                                      subset_num_items=-1)
-
-cnn_data.check_num_regions(cnn_fname, imgid2region_indices, verbose=True)
 
 w2v_vocab_fname = '../data/word_vects/glove/vocab.txt'
 w2v_vectors_fname = '../data/word_vects/glove/vocab_vecs.txt'

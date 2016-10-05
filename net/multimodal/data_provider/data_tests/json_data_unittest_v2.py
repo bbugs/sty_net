@@ -6,7 +6,8 @@ calls to this function.
 
 
 from net.multimodal.data_provider.data_tests import test_data_config
-from net.multimodal.data_provider.json_data import JsonFile, check_img_ids
+from net.multimodal.data_provider.json_data import JsonFile
+from net.multimodal.multimodal_utils import check_img_ids
 from net.multimodal import multimodal_utils
 
 d = test_data_config.exp_config

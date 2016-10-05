@@ -6,19 +6,23 @@ print multimodal_utils.init_random_weights(4).shape
 
 
 json_fname = '../data/fashion53k/json/only_zappos/dataset_dress_all_test.clean.json'
+cnn_fname = '../data/fashion53k/full_img/per_split/cnn_fc7_test.txt'
 num_regions_per_img = 1
 img_id2region_indices_1 = multimodal_utils.mk_toy_img_id2region_indices(json_fname,
-                                                                      num_regions_per_img,
-                                                                      subset_num_items=-1)
+                                                                        cnn_fname=cnn_fname,
+                                                                        num_regions_per_img=num_regions_per_img,
+                                                                        subset_num_items=-1)
 
 assert img_id2region_indices_1[6] == [0]
 assert img_id2region_indices_1[80] == [1]
 print img_id2region_indices_1
 
+cnn_fname = '../data/fashion53k/img_regions/4_regions_cnn/per_split/cnn_fc7_test.txt'
 num_regions_per_img = 5
 img_id2region_indices_5 = multimodal_utils.mk_toy_img_id2region_indices(json_fname,
-                                                                      num_regions_per_img,
-                                                                      subset_num_items=-1)
+                                                                        cnn_fname=cnn_fname,
+                                                                        num_regions_per_img=num_regions_per_img,
+                                                                        subset_num_items=-1)
 
 assert img_id2region_indices_5[6] == [0, 1, 2, 3, 4]
 assert img_id2region_indices_5[80] == [5, 6, 7, 8, 9]

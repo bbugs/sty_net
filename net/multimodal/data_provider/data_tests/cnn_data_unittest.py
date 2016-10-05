@@ -1,5 +1,6 @@
 
-from net.multimodal.data_provider.cnn_data import CnnData, check_num_regions
+from net.multimodal.data_provider.cnn_data import CnnData
+from net.multimodal.multimodal_utils import check_num_regions
 from net.multimodal.data_provider.data_tests import test_data_config
 from net.multimodal import multimodal_utils
 import numpy as np
@@ -26,6 +27,7 @@ assert cnn_data.get_cnn_dim() == 4096
 
 
 imgid2region_indices = multimodal_utils.mk_toy_img_id2region_indices(json_fname=json_fname,
+                                                                     cnn_fname=cnn_fname,
                                                                      num_regions_per_img=5,
                                                                      subset_num_items=-1)
 

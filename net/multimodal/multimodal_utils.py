@@ -90,8 +90,41 @@ def write_report(new_report_fname, new_report, exp_config, current_val_f1):
             print msg
             return
 
+def check_img_ids(json_fname, imgid2region_indices):
+    """(str, dict) ->
 
-def mk_toy_img_id2region_indices(json_fname, num_regions_per_img, subset_num_items=-1):
+    imgid2region_indices is a dict whose
+
+    """
+    json_file = JsonFile(json_fname, num_items=-1)
+
+    assert sorted(imgid2region_indices.keys()) == json_file.get_img_ids(), \
+           "mismatch between img ids from imgid2region_indices and json file {}".format(json_fname)
+
+    return
+
+
+def check_num_regions(cnn_fname, imgid2region_indices, verbose=False):
+    """(str, dict) ->
+    compare the number of regions from cnn_fname and the number
+    of regions from imgid2region_indices
+
+    """
+    num_regions = 0
+    for img_id in imgid2region_indices:
+        num_regions += len(imgid2region_indices[img_id])
+
+    num_regions_cnn_array = get_num_lines_from_file(cnn_fname)
+
+    if verbose:
+        print "num regions from imgid2region_indices: ", num_regions
+        print "num regions from cnn array: ", num_regions_cnn_array
+
+    assert num_regions == num_regions_cnn_array, \
+           "mismatch between num_regions and num_lines in cnn file {}".format(cnn_fname)
+    return
+
+def mk_toy_img_id2region_indices(json_fname, cnn_fname, num_regions_per_img, subset_num_items=-1):
 
     json_file = JsonFile(json_fname, num_items=subset_num_items)
 
@@ -106,6 +139,11 @@ def mk_toy_img_id2region_indices(json_fname, num_regions_per_img, subset_num_ite
             img_id2region_indices[img_id].append(region_index)
             region_index += 1
 
+    # verify consistency between img ids in json file and the img_id2region_indices
+    check_img_ids(json_fname, img_id2region_indices)
+    # verify consistency between the cnn file and the number of regions
+    check_num_regions(cnn_fname, img_id2region_indices)
+
     return img_id2region_indices
 
 
@@ -116,7 +154,6 @@ def mk_cnn_region_index2img_id(img_id2region_indices):
         for region_index in region_indices:
             cnn_region_index2img_id[region_index] = img_id
     return cnn_region_index2img_id
-
 
 
 def get_num_lines_from_file(fname):
@@ -194,8 +231,12 @@ if __name__ == '__main__':
 
     from net.multimodal.data_provider.data_tests import test_data_config
 
-    fname = test_data_config.exp_config['json_path_test']
-    imgid2regionind = mk_toy_img_id2region_indices(json_fname=fname, num_regions_per_img=5, subset_num_items=3)
+    json_ffname = test_data_config.exp_config['json_path_test']
+    cnn_ffname = test_data_config.exp_config['cnn_regions_path_test']
+    imgid2regionind = mk_toy_img_id2region_indices(json_fname=json_ffname,
+                                                   cnn_fname=cnn_ffname,
+                                                   num_regions_per_img=5,
+                                                   subset_num_items=-1)
     correct = {}
     correct[6] = [0,1,2,3,4]
     correct[80] = [5,6,7,8,9]
@@ -203,5 +244,7 @@ if __name__ == '__main__':
     print imgid2regionind  # {80: [5, 6, 7, 8, 9], 147: [10, 11, 12, 13, 14], 6: [0, 1, 2, 3, 4]}
     # assert imgid2regionind == correct
 
-    fname = test_data_config.exp_config['cnn_regions_path_test']
-    print get_num_lines_from_file(fname)
+    ffname = test_data_config.exp_config['cnn_regions_path_test']
+    print get_num_lines_from_file(ffname)
+
+

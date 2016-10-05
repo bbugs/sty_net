@@ -26,7 +26,8 @@ print "setting batch data"
 json_fname_train = test_data_config.exp_config['json_path_train']
 cnn_fname_train = test_data_config.exp_config['cnn_regions_path_train']
 num_regions_per_img = test_data_config.exp_config['num_regions_per_img']
-imgid2region_indices_train = multimodal_utils.mk_toy_img_id2region_indices(json_fname_train,
+imgid2region_indices_train = multimodal_utils.mk_toy_img_id2region_indices(json_fname=json_fname_train,
+                                                                           cnn_fname=cnn_fname_train,
                                                                            num_regions_per_img=num_regions_per_img,
                                                                            subset_num_items=-1)
 num_items_train = 20  #len(imgid2region_indices_train)  #TODO: change back
@@ -49,8 +50,9 @@ print "setting evaluation data for train split"
 external_vocab_fname = test_data_config.exp_config['external_vocab']
 cnn_fname_train = test_data_config.exp_config['cnn_full_img_path_train']
 num_regions_per_img = 1
-imgid2region_indices_train = multimodal_utils.mk_toy_img_id2region_indices(json_fname_train,
-                                                                           num_regions_per_img=1, # For eval data, this is 1
+imgid2region_indices_train = multimodal_utils.mk_toy_img_id2region_indices(json_fname=json_fname_train,
+                                                                           cnn_fname=cnn_fname_train,
+                                                                           num_regions_per_img=1,
                                                                            subset_num_items=-1)
 eval_data_train = EvaluationData(json_fname_train, cnn_fname_train, imgid2region_indices_train,
                                  w2v_vocab_fname, w2v_vectors_fname,
@@ -61,8 +63,9 @@ eval_data_train = EvaluationData(json_fname_train, cnn_fname_train, imgid2region
 print "setting evaluation data for val split"
 json_fname_val = test_data_config.exp_config['json_path_val']
 cnn_fname_val = test_data_config.exp_config['cnn_full_img_path_val']
-imgid2region_indices_val = multimodal_utils.mk_toy_img_id2region_indices(json_fname_val,
-                                                                         num_regions_per_img=1,  # For eval data, this is 1
+imgid2region_indices_val = multimodal_utils.mk_toy_img_id2region_indices(json_fname=json_fname_val,
+                                                                         cnn_fname=cnn_fname_val,
+                                                                         num_regions_per_img=1,
                                                                          subset_num_items=-1)
 
 eval_data_val = EvaluationData(json_fname_val, cnn_fname_val, imgid2region_indices_val,
@@ -75,13 +78,14 @@ eval_data_val = EvaluationData(json_fname_val, cnn_fname_val, imgid2region_indic
 print "setting evaluation data for test split"
 json_fname_test = test_data_config.exp_config['json_path_test']
 cnn_fname_test = test_data_config.exp_config['cnn_full_img_path_test']
-imgid2region_indices_test = multimodal_utils.mk_toy_img_id2region_indices(json_fname_test,
-                                                                          num_regions_per_img=1, # For eval data, this is 1
+imgid2region_indices_test = multimodal_utils.mk_toy_img_id2region_indices(json_fname=json_fname_test,
+                                                                          cnn_fname=cnn_fname_test,
+                                                                          num_regions_per_img=1,
                                                                           subset_num_items=-1)
 
 eval_data_test = EvaluationData(json_fname_test, cnn_fname_test, imgid2region_indices_test,
                                 w2v_vocab_fname, w2v_vectors_fname,
-                                external_vocab_fname, subset_num_items=20) # TODO: set to -1 on the real experiments
+                                external_vocab_fname, subset_num_items=20)  # TODO: set to -1 on the real experiments
 
 # ______________________________________________
 # Multi-Word Queries Test Evaluation Data
@@ -89,8 +93,9 @@ eval_data_test = EvaluationData(json_fname_test, cnn_fname_test, imgid2region_in
 print "setting evaluation data for test split multiple word queries"
 json_fname_test = test_data_config.exp_config['json_path_test']
 cnn_fname_test = test_data_config.exp_config['cnn_full_img_path_test']
-imgid2region_indices_test = multimodal_utils.mk_toy_img_id2region_indices(json_fname_test,
-                                                                          num_regions_per_img=1, # For eval data, this is 1
+imgid2region_indices_test = multimodal_utils.mk_toy_img_id2region_indices(json_fname=json_fname_test,
+                                                                          cnn_fname=cnn_fname_test,
+                                                                          num_regions_per_img=1,
                                                                           subset_num_items=-1)
 
 eval_data_test_mwq = EvaluationData(json_fname_test, cnn_fname_test, imgid2region_indices_test,

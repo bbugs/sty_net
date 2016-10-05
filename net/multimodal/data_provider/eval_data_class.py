@@ -231,6 +231,7 @@ def get_eval_data(exp_config, subset_train=-1, subset_val=-1, subset_test=-1):
 
     num_regions_per_img = 1  # During evaluation num_regions_per_img is set to 1 because we evaluate with full img cnn
     imgid2region_indices_train = multimodal_utils.mk_toy_img_id2region_indices(json_fname_train,
+                                                                               cnn_fname=cnn_fname_train,
                                                                                num_regions_per_img=num_regions_per_img,
                                                                                subset_num_items=-1)
     external_vocab_fname = exp_config['external_vocab']
@@ -246,6 +247,7 @@ def get_eval_data(exp_config, subset_train=-1, subset_val=-1, subset_test=-1):
     json_fname_val = exp_config['json_path_val']
     cnn_fname_val = exp_config['cnn_full_img_path_val']
     imgid2region_indices_val = multimodal_utils.mk_toy_img_id2region_indices(json_fname_val,
+                                                                             cnn_fname=cnn_fname_val,
                                                                              num_regions_per_img=num_regions_per_img,
                                                                              subset_num_items=-1)
 
@@ -260,6 +262,7 @@ def get_eval_data(exp_config, subset_train=-1, subset_val=-1, subset_test=-1):
     json_fname_test = exp_config['json_path_test']
     cnn_fname_test = exp_config['cnn_full_img_path_test']
     imgid2region_indices_test = multimodal_utils.mk_toy_img_id2region_indices(json_fname_test,
+                                                                              cnn_fname=cnn_fname_test,
                                                                               num_regions_per_img=num_regions_per_img,
                                                                               subset_num_items=-1)
 
@@ -275,6 +278,7 @@ def get_eval_data(exp_config, subset_train=-1, subset_val=-1, subset_test=-1):
     json_fname_test = exp_config['json_path_test']
     cnn_fname_test = exp_config['cnn_full_img_path_test']
     imgid2region_indices_test = multimodal_utils.mk_toy_img_id2region_indices(json_fname_test,
+                                                                              cnn_fname=cnn_fname_test,
                                                                               num_regions_per_img=num_regions_per_img,
                                                                               subset_num_items=-1)
 

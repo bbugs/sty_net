@@ -1,25 +1,11 @@
-import json
 import collections
-import numpy as np
+import json
 import os
-import random
 import pickle
-from net.multimodal.data_provider import vocab_data
-import nltk
+import random
+
+import numpy as np
 from nltk.corpus import stopwords
-
-
-def check_img_ids(json_fname, imgid2region_indices):
-    """(str, dict) ->
-
-    imgid2region_indices is a dict whose
-
-    """
-    json_file = JsonFile(json_fname, num_items=-1)
-
-    assert sorted(imgid2region_indices.keys()) == json_file.get_img_ids()
-
-    return
 
 
 class JsonFile(object):

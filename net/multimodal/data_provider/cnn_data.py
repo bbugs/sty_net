@@ -1,26 +1,6 @@
-import numpy as np
 import linecache
-from net.multimodal import multimodal_utils
 
-
-def check_num_regions(cnn_fname, imgid2region_indices, verbose=False):
-    """(str, dict) ->
-    compare the number of regions from cnn_fname and the number
-    of regions from imgid2region_indices
-
-    """
-    num_regions = 0
-    for img_id in imgid2region_indices:
-        num_regions += len(imgid2region_indices[img_id])
-
-    num_regions_cnn_array = multimodal_utils.get_num_lines_from_file(cnn_fname)
-
-    if verbose:
-        print "num regions from imgid2region_indices: ", num_regions
-        print "num regions from cnn array: ", num_regions_cnn_array
-
-    assert num_regions == num_regions_cnn_array
-    return
+import numpy as np
 
 
 class CnnData(object):

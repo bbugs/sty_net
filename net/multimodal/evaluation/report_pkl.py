@@ -3,7 +3,6 @@ from net.multimodal.data_provider.data_tests import test_data_config
 import numpy as np
 import matplotlib.pyplot as plt
 from net.multimodal.multimodal_solver import MultiModalSolver
-from net.multimodal.data_provider.experiment_data import EvaluationDataMWQ
 from net.multimodal.data_provider.eval_data_class import EvaluationData, EvaluationDataMWQ
 from net.multimodal import multimodal_utils as mm_utils
 from net.multimodal import experiment
@@ -30,8 +29,8 @@ exp_config['eval_k'] = 10
 #############################################
 print "setting evaluation data for test set"
 imgid2region_indices_test = mm_utils.mk_toy_img_id2region_indices(json_fname=exp_config['json_path_test'],
-                                                                  num_regions_per_img=1,
-                                                                  subset_num_items=-1)
+                                                                  cnn_fname=exp_config['cnn_full_img_path_test'],
+                                                                  num_regions_per_img=1, subset_num_items=-1)
 eval_data_test = EvaluationData(json_fname=exp_config['json_path_test'],
                                 cnn_fname=exp_config['cnn_full_img_path_test'],
                                 img_id2cnn_region_indeces=imgid2region_indices_test,
@@ -44,8 +43,8 @@ eval_data_test = EvaluationData(json_fname=exp_config['json_path_test'],
 # Set eval data for VAL
 #############################################
 imgid2region_indices_val = mm_utils.mk_toy_img_id2region_indices(json_fname=exp_config['json_path_val'],
-                                                                 num_regions_per_img=1,
-                                                                 subset_num_items=-1)
+                                                                 cnn_fname=exp_config['cnn_full_img_path_val'],
+                                                                 num_regions_per_img=1, subset_num_items=-1)
 eval_data_val = EvaluationData(json_fname=exp_config['json_path_val'],
                                cnn_fname=exp_config['cnn_full_img_path_val'],
                                img_id2cnn_region_indeces=imgid2region_indices_val,
