@@ -139,6 +139,8 @@ class BatchData(ExperimentData):
     def _mk_X_txt_global(self):
         self.X_txt_global = self.w2v_data.get_word_vectors_of_word_list(self.word_seq)
 
+
+
     def mk_minibatch(self, batch_size, verbose=False, debug=False):
         """
         Args:
@@ -158,6 +160,7 @@ class BatchData(ExperimentData):
         self._reset()
 
         self.img_ids = self.json_file.get_random_img_ids(batch_size)
+        self.n_imgs = len(self.img_ids)
         if debug:
             self.img_ids = sorted(self.img_ids)  # so that the unittests can expect the output in this order
         if verbose:
