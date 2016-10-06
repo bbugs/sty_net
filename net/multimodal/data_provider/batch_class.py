@@ -204,6 +204,35 @@ class BatchData(ExperimentData):
         return
 
 
+class BatchDataAssociat(BatchData):
+
+    def __init__(self, json_fname, cnn_fname, img_id2cnn_region_indeces,
+                 w2v_vocab_fname, w2v_vectors_fname, classifiers, subset_num_items=-1):
+        """
+
+        Args:
+            json_fname: str
+            cnn_fname:  str
+            img_id2cnn_region_indeces: int
+            w2v_vocab_fname:  str
+            w2v_vectors_fname: str
+            classifiers:  dict of classifiers st, classifiers[word] = clf, a trained
+                          classifier for the word.
+            subset_num_items: int
+        """
+
+        BatchData.__init__(self, json_fname, cnn_fname, img_id2cnn_region_indeces,
+                 w2v_vocab_fname, w2v_vectors_fname, subset_num_items)
+
+        return
+
+    def _set_y_associat(self):
+
+        return
+
+        
+
+
 def get_batch_data(exp_config, subset_num_items=-1):
     """
     Parameters
