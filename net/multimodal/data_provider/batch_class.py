@@ -98,6 +98,31 @@ class BatchData(ExperimentData):
     #
     #     return X_img, X_txt, region2pair_id, word2pair_id
 
+    def _set_batch_img_ids(self, batch_size, verbose=False, debug=False):
+        self.img_ids = self.json_file.get_random_img_ids(batch_size)
+        self.n_imgs = len(self.img_ids)
+        if debug:
+            self.img_ids = sorted(self.img_ids)  # so that the unittests can expect the output in this order
+        if verbose:
+            print "img_ids on minibatch", self.img_ids
+
+    def _set_num_regions_in_batch(self):
+        # get number of regions in the batch
+        for img_id in self.img_ids:
+            self.n_regions += len(self.img_id2cnn_region_indeces[img_id])
+
+    def _set_words_in_batch(self):
+        # Get unique words in the batch and also get the word sequence
+        unique_words = set()
+        for img_id in self.img_ids:
+            words_in_img = self.json_file.get_word_list_of_img_id(img_id, remove_stops=True)
+            self.word_seq.extend(words_in_img)
+            self.img_ids2words[img_id] = words_in_img
+            unique_words.update(set(words_in_img))
+
+        self.unique_words_list = sorted(list(unique_words))
+        self.n_unique_words = len(self.unique_words_list)
+
     def _mk_y_local(self):
         """
         Args:
@@ -139,8 +164,6 @@ class BatchData(ExperimentData):
     def _mk_X_txt_global(self):
         self.X_txt_global = self.w2v_data.get_word_vectors_of_word_list(self.word_seq)
 
-
-
     def mk_minibatch(self, batch_size, verbose=False, debug=False):
         """
         Args:
@@ -158,28 +181,9 @@ class BatchData(ExperimentData):
 
         """
         self._reset()
-
-        self.img_ids = self.json_file.get_random_img_ids(batch_size)
-        self.n_imgs = len(self.img_ids)
-        if debug:
-            self.img_ids = sorted(self.img_ids)  # so that the unittests can expect the output in this order
-        if verbose:
-            print "img_ids on minibatch", self.img_ids
-
-        # Get unique words in the batch and also get the word sequence
-        unique_words = set()
-        for img_id in self.img_ids:
-            words_in_img = self.json_file.get_word_list_of_img_id(img_id, remove_stops=True)
-            self.word_seq.extend(words_in_img)
-            self.img_ids2words[img_id] = words_in_img
-            unique_words.update(set(words_in_img))
-
-        self.unique_words_list = sorted(list(unique_words))
-        self.n_unique_words = len(self.unique_words_list)
-
-        # get number of regions in the batch
-        for img_id in self.img_ids:
-            self.n_regions += len(self.img_id2cnn_region_indeces[img_id])
+        self._set_batch_img_ids(batch_size, verbose, debug)
+        self._set_num_regions_in_batch()
+        self._set_words_in_batch()
 
         # make y_local
         self._mk_y_local()
