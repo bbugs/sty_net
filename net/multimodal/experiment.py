@@ -67,4 +67,7 @@ def set_model(exp_config):
     # do_mil starts as False and it can be set to True inside
     # MultModalSolver after an number of epochs
 
+    # set associat margin
+    mm_net.associat_margin = exp_config['associat_margin']
+
     return mm_net

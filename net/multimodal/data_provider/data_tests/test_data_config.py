@@ -5,6 +5,7 @@ exp_config = {}
 # assume all data has been precomputed in dc['root_path']
 exp_config['root_path'] = root_path = '../'  # assume module is run from sty_net
 exp_config['id'] = 0
+exp_config['subset_train'] = 30  # number of items from the train set to use. Normally -1 for experiments
 
 # Image CNN (Full Image + Regions) features
 exp_config['num_regions_per_img'] = 4 + 1
@@ -58,7 +59,7 @@ exp_config['use_finetune_w2v'] = False
 exp_config['start_modulation'] = 0.75  # start after 0.75 of epochs
 
 # local loss params
-exp_config['use_local'] = 1.
+exp_config['use_local'] = 0.
 exp_config['local_margin'] = 1.  # keep constant
 exp_config['local_scale'] = 1.  # keep constant - regulate with use_local (kept for compatiblity with matlab code)
 exp_config['use_mil'] = False
@@ -72,8 +73,12 @@ exp_config['use_global'] = 0.
 # exp_config['thrglobalscore'] = False
 
 # association loss params
-exp_config['use_associat'] = 0.
-
+exp_config['use_associat'] = 1.
+exp_config['classifier_type'] = 'naive_bayes'
+exp_config['classifier_option'] = 'bernoulli'
+exp_config['binarize'] = 0.0
+exp_config['classifier_subsample'] = True
+exp_config['associat_margin'] = 1.
 
 ####################################################################
 # Set optimization parameters
@@ -87,7 +92,8 @@ exp_config['lr_decay'] = 1
 
 exp_config['print_every'] = 10  # print loss
 exp_config['num_epochs'] = 100
-exp_config['batch_size'] = 20
+exp_config['batch_size'] = 2
+exp_config['subset_batch_data'] = 20
 
 
 

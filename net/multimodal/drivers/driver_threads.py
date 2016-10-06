@@ -26,7 +26,7 @@ def run_experiment(exp_config):
     mm_net = experiment.set_model(exp_config)
 
     logging.info("id_{} model has been set. Going to create new batch object".format(exp_config['id']))
-    batch_data = get_batch_data(exp_config, subset_num_items=-1)  # TODO: change to -1
+    batch_data = get_batch_data(exp_config)
 
     logging.info("id_{} created new batch object".format(exp_config['id']))
     solver = MultiModalSolver(mm_net, batch_data, EVAL_DATA_TRAIN, EVAL_DATA_VAL,

@@ -2,6 +2,7 @@ import numpy as np
 
 from net.multimodal import multimodal_utils
 from net.multimodal.data_provider.experiment_data import ExperimentData
+from pattern_mining import associat_classifiers
 
 
 class BatchData(ExperimentData):
@@ -28,6 +29,7 @@ class BatchData(ExperimentData):
 
         self.y = np.array([])
         self.y_global = np.array([])
+        self.y_associat = np.array([])
 
         self.img_ids2words = {}
 
@@ -147,6 +149,10 @@ class BatchData(ExperimentData):
                     self.y[region_index, word_index] = 1
                 region_index += 1
 
+    def _mk_y_associat(self):
+        self.y_associat = None  # this class does not need a y_associate. It's here for consistency
+        return
+
     def _mk_X_img(self):
         self.X_img = np.zeros((self.n_regions, self.cnn_dim))
 
@@ -185,14 +191,16 @@ class BatchData(ExperimentData):
         self._set_num_regions_in_batch()
         self._set_words_in_batch()
 
-        # make y_local
-        self._mk_y_local()
-
         # make X_img
         self._mk_X_img()
 
         # make X_txt_local
         self._mk_X_txt_local()
+
+        # make y_local
+        self._mk_y_local()
+        # make y_associat
+        self._mk_y_associat()
 
         # make X_txt_global
         # self._mk_X_txt_global()
@@ -224,21 +232,21 @@ class BatchDataAssociat(BatchData):
         BatchData.__init__(self, json_fname, cnn_fname, img_id2cnn_region_indeces,
                  w2v_vocab_fname, w2v_vectors_fname, subset_num_items)
 
+        self.classifiers = classifiers
+
         return
 
-    def _set_y_associat(self):
-
+    def _mk_y_associat(self):
+        self.y_associat = self.classifiers.predict_for_batch(X_img=self.X_img, unique_words_in_batch=self.unique_words_list)
         return
 
         
-
-
-def get_batch_data(exp_config, subset_num_items=-1):
+def get_batch_data(exp_config):
     """
     Parameters
     ----------
     exp_config
-    subset_num_items": when reading the json file, you can choose
+    subset_num_items: when reading the json file, you can choose
     to get only the first subset_num_items. For experiments, it should be -1
 
     Returns
@@ -254,9 +262,25 @@ def get_batch_data(exp_config, subset_num_items=-1):
                                                                                subset_num_items=-1)
     w2v_vocab_fname = exp_config['word2vec_vocab']
     w2v_vectors_fname = exp_config['word2vec_vectors']
+    subset_num_items = exp_config['subset_batch_data']
 
-    batch_data = BatchData(json_fname_train, cnn_fname_train,
-                           imgid2region_indices_train,
-                           w2v_vocab_fname, w2v_vectors_fname,
-                           subset_num_items=subset_num_items)
+    if exp_config['use_associat'] > 0:
+
+        classifiers = associat_classifiers.get_associat_classifiers(exp_config)
+
+        batch_data = BatchDataAssociat(json_fname=json_fname_train,
+                                       cnn_fname=cnn_fname_train,
+                                       img_id2cnn_region_indeces=imgid2region_indices_train,
+                                       w2v_vocab_fname=w2v_vocab_fname,
+                                       w2v_vectors_fname=w2v_vectors_fname,
+                                       classifiers=classifiers,
+                                       subset_num_items=subset_num_items)
+
+    else:
+        batch_data = BatchData(json_fname=json_fname_train,
+                               cnn_fname=cnn_fname_train,
+                               img_id2cnn_region_indeces=imgid2region_indices_train,
+                               w2v_vocab_fname=w2v_vocab_fname,
+                               w2v_vectors_fname=w2v_vectors_fname,
+                               subset_num_items=subset_num_items)
     return batch_data

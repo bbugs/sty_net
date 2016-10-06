@@ -1,11 +1,11 @@
 from net.multimodal.data_provider.json_data import JsonFile
 from net.multimodal.multimodal_utils import check_img_ids, check_num_regions
 from net.multimodal.data_provider.cnn_data import CnnData
-from net.multimodal.data_provider.vocab_data import Vocabulary
-from net.multimodal.data_provider.word2vec_data import Word2VecData
 from sklearn.naive_bayes import MultinomialNB, BernoulliNB
 import numpy as np
 import random
+from net.multimodal import multimodal_utils
+import logging
 
 
 class AssociatClassifiers(object):
@@ -71,14 +71,14 @@ class AssociatClassifiers(object):
             print "num_positive", num_positive, "num_negative", num_negative
 
         if subsample:  # if you want to make the len of pos and neg imgs the same:
-            if num_negative < num_positive:
+            if num_negative < num_positive and num_negative != 0:
                 if verbose:
                     print "down sample positive_img_ids for word {}\n".format(word)
-                positive_img_ids = random.sample(positive_img_ids, num_negative)
-            elif num_positive < num_negative:
+                positive_img_ids = set(random.sample(positive_img_ids, num_negative))
+            elif num_positive < num_negative and num_positive != 0:
                 if verbose:
                     print "down sample negative_img_ids for word {}\n".format(word)
-                negative_img_ids = random.sample(negative_img_ids, num_positive)
+                negative_img_ids = set(random.sample(negative_img_ids, num_positive))
 
         return positive_img_ids, negative_img_ids
 
@@ -215,6 +215,50 @@ class AssociatClassifiers(object):
             i += 1
 
         return y
+
+
+def get_associat_classifiers(exp_config):
+    """
+
+    Args:
+        exp_config:
+
+    Returns:
+
+    """
+
+    json_fname_train = exp_config['json_path_train']
+    cnn_fname_train = exp_config['cnn_full_img_path_train']  # train of full images
+    subset_train = exp_config['subset_batch_data']  # use the same subset as batch_data. Normally -1 for experiments
+    num_regions_per_img = 1  # Normally classifiers are trained with the full image, thus this is 1.
+    # TODO: replace this by the actual num_regions_per_img in case you want to train with regions
+    imgid2region_indices_train = multimodal_utils.mk_toy_img_id2region_indices(json_fname=json_fname_train,
+                                                                               cnn_fname=cnn_fname_train,
+                                                                               num_regions_per_img=num_regions_per_img,
+                                                                               subset_num_items=-1)
+
+    # specific options for the association classifiers
+    classifier_type = exp_config['classifier_type']
+
+    if classifier_type == 'naive_bayes':
+        associat_classifiers = AssociatClassifiers(json_fname=json_fname_train,
+                                                   cnn_fname=cnn_fname_train,
+                                                   img_id2cnn_region_indeces=imgid2region_indices_train,
+                                                   subset_num_items=subset_train)
+
+        classifier_option = exp_config['classifier_option']  # 'bernoulli' or 'multinomial'
+        binarize = exp_config['binarize']
+        subsample = exp_config['classifier_subsample']
+        logging.info("id_{} training association classifiers".format(exp_config['id']))
+        associat_classifiers.fit(option=classifier_option, binarize=binarize,
+                                 subsample=subsample, verbose=True)
+
+        return associat_classifiers
+
+    else:
+        raise ValueError("classifier type supported is naive bayes for now")
+
+
 
 
 

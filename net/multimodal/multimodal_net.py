@@ -51,6 +51,7 @@ class MultiModalNet(object):
 
         # Initalize association scores hypeparams
         self.use_associat = use_associat
+        self.associat_margin = 1.
 
         # Set finetuning options
         self.use_finetune_cnn = use_finetune_cnn
@@ -148,15 +149,16 @@ class MultiModalNet(object):
     #
     #     return loss * global_scale, d_local_scores * global_scale
 
-    def loss_association(self, sim_region_word, region_word_associat_scores):
+    def loss_association(self, sim_region_word_local, y_associat):
         # input include associat_region_word_scores (or something like that)
         assert self.use_associat > 0
-        # TODO: Implement this function
-        loss = 0
-        d_scores = np.zeros(sim_region_word.shape)
-        return loss, d_scores
 
-    def loss(self, data, eval_mode, region_word_associat_scores=None):
+        loss, d_local_scores = svm_two_classes(sim_region_word_local, y_associat,
+                                               delta=self.associat_margin, do_mil=False, normalize=True)
+
+        return loss, d_local_scores
+
+    def loss(self, data, eval_mode):
         """
         Compute loss and gradient for a minibatch of data.
 
@@ -188,6 +190,7 @@ class MultiModalNet(object):
         # region2pair_id = batch_data.region2pair_id
         # word2pair_id = batch_data.word2pair_id
         y = data.y
+        y_associat = data.y_associat
 
         assert self.use_local + self.use_global + self.use_associat == 1, "need to sum up to 1"
 
@@ -239,7 +242,7 @@ class MultiModalNet(object):
             # dscores += dscores2 * self.use_global
 
         if self.use_associat > 0:
-            associat_loss, dscores3 = self.loss_association(sim_region_word_local, region_word_associat_scores)
+            associat_loss, dscores3 = self.loss_association(sim_region_word_local, y_associat)
             loss += associat_loss * self.use_associat
             dscores += dscores3 * self.use_associat
 

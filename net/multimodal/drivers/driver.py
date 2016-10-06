@@ -28,7 +28,7 @@ def run_experiment(exp_config, num_items_train,
     mm_net = experiment.set_model(exp_config)
 
     logging.info("id_{} model has been set. Going to create new batch object".format(exp_config['id']))
-    batch_data = get_batch_data(exp_config, subset_num_items=exp_config['subset_batch_data'])
+    batch_data = get_batch_data(exp_config)
 
     logging.info("id_{} created new batch object".format(exp_config['id']))
     solver = MultiModalSolver(mm_net, batch_data,
@@ -244,6 +244,13 @@ if __name__ == "__main__":
     parser.add_argument('--subset_test', dest='subset_test', type=int, default=50)  # -1 to use them all
 
     parser.add_argument('--subset_batch_data', dest='subset_batch_data', type=int, default=-1)  # -1 to use them all
+
+    # configuration of association classifiers
+    parser.add_argument('--classifier_type', dest='classifier_type', type=str, default='naive_bayes')
+    parser.add_argument('--classifier_option', dest='classifier_option', type=str, default='bernoulli') #or multinomial
+    parser.add_argument('--binarize', dest='binarize', type=float, default=0.0)
+    parser.add_argument('--classifier_subsample', dest='classifier_subsample', type=bool, default=False)
+    parser.add_argument('--associat_margin', dest='associat_margin', type=float, default=1.)
 
     args = parser.parse_args()
 
