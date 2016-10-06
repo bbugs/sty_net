@@ -12,7 +12,9 @@ import json
 
 ckpoint_path = '/Users/susanaparis/Documents/Belgium/Chapter4/data/fashion53k/promising_reports/paris/'
 # fname = ckpoint_path + 'report_valf1_0.0420_id_41_hd_800_l_1.0_g_0.0_a_0.0_e_17_p_0.0771_r_0.1017.pkl'
-fname = ckpoint_path + 'report_valf1_0.1166_id_41_hd_500_l_1.0_g_0.0_a_0.0_e_0_p_0.2041_r_0.3163.pkl'
+# fname = ckpoint_path + 'report_valf1_0.1166_id_41_hd_500_l_1.0_g_0.0_a_0.0_e_0_p_0.2041_r_0.3163.pkl'
+fname = ckpoint_path + 'report_valf1_0.1166_id_46_hd_800_l_1.0_g_0.0_a_0.0_e_0_p_0.2057_r_0.3160.pkl'
+# fname = ckpoint_path + 'id_6_end_report_2016_10_05_0110_tr_0.0576_val_0.0622.pkl'
 
 with open(fname, "rb") as f:
     report = pickle.load(f)
@@ -99,9 +101,9 @@ loss = report['loss_history']
 print len(report['loss_history'])
 x = [i for i in range(len(loss))]
 line, = plt.plot(x, loss, 'x', linewidth=2)
-# plt.show()  # uncomment to see plot
+plt.show()  # uncomment to see plot
 
-
+perform_history = report['performance_history']
 
 # fname = ckpoint_path + 'end_report_2016_09_18_0312_tr_0.0603_val_0.0753.pkl'
 # with open(fname, "rb") as f:
@@ -109,6 +111,34 @@ line, = plt.plot(x, loss, 'x', linewidth=2)
 
 # end_report.keys()
 # Out[3]: ['img2txt', 'loss_history', 'txt2img', 'iter', 'exp_config', 'epoch', 'model']
+
+test_p = []
+for item in report['performance_history']:
+    p = item[1]['ranking']['i2t']['test']['R'][10]
+    test_p.append(p)
+
+x = [i for i in range(len(test_p))]
+plt.plot(x, test_p, '-')
+plt.show()
+
+test_p = []
+for item in report['performance_history']:
+    p = item[1]['ranking']['i2t']['val']['R'][10]
+    test_p.append(p)
+
+x = [i for i in range(len(test_p))]
+plt.plot(x, test_p, '-')
+plt.show()
+
+test_p = []
+for item in report['performance_history']:
+    p = item[1]['ranking']['i2t']['train']['R'][10]
+    test_p.append(p)
+
+x = [i for i in range(len(test_p))]
+plt.plot(x, test_p, '-')
+plt.show()
+
 
 print "here"
 
