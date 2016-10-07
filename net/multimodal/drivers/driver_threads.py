@@ -241,10 +241,7 @@ if __name__ == "__main__":
     # Build constant data
     print "building eval data"
 
-    EVAL_DATA_TRAIN, EVAL_DATA_VAL, EVAL_DATA_TEST = get_eval_data(GLOBAL_CONFIG,
-                                                                   subset_train=500,
-                                                                   subset_val=100,
-                                                                   subset_test=100)  # TODO: change to -1
+    EVAL_DATA_TRAIN, EVAL_DATA_VAL, EVAL_DATA_TEST = get_eval_data(GLOBAL_CONFIG)
     print "finished building eval data"
     NUM_ITEMS_TRAIN = 1000  # TODO: change to actual number
 

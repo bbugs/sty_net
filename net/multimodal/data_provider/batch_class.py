@@ -237,7 +237,8 @@ class BatchDataAssociat(BatchData):
         return
 
     def _mk_y_associat(self):
-        self.y_associat = self.classifiers.predict_for_batch(X_img=self.X_img, unique_words_in_batch=self.unique_words_list)
+        self.y_associat = self.classifiers.predict_for_batch(X_img=self.X_img,
+                                                             unique_words_in_batch=self.unique_words_list)
         return
 
         
@@ -265,7 +266,7 @@ def get_batch_data(exp_config):
     subset_num_items = exp_config['subset_batch_data']
 
     if exp_config['use_associat'] > 0:
-
+        # get trained classifiers
         classifiers = associat_classifiers.get_associat_classifiers(exp_config)
 
         batch_data = BatchDataAssociat(json_fname=json_fname_train,

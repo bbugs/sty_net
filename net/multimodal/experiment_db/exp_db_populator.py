@@ -18,9 +18,9 @@ def populate_db(db_fname, n_exps):
 
     # Local Loss
     config = {}
-    config['use_local'] = 1.
+    config['use_local'] = 0.5
     config['use_global'] = 0.
-    config['use_associat'] = 0.
+    config['use_associat'] = 0.5
     config['use_mil'] = False
     config['use_finetune_cnn'] = False
     config['use_finetune_w2v'] = False

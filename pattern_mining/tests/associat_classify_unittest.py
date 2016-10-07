@@ -20,7 +20,7 @@ imgid2region_indices = multimodal_utils.mk_toy_img_id2region_indices(json_fname,
 ac = AssociatClassifiers(json_fname=json_fname,
                          cnn_fname=cnn_fname,
                          img_id2cnn_region_indeces=imgid2region_indices,
-                         subset_num_items=20)  # TODO: change to -1
+                         subset_num_items=20)
 
 # Train a classifier for each img-word pair
 ac.fit(option='bernoulli', binarize=0.0,

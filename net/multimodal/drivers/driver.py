@@ -77,10 +77,7 @@ def main(main_args):
     # Build constant data
     print "building eval data"
 
-    eval_data_train, eval_data_val, eval_data_test, eval_data_test_mwq = get_eval_data(main_config,
-                                                                   subset_train=main_config['subset_train'],
-                                                                   subset_val=main_config['subset_val'],
-                                                                   subset_test=main_config['subset_test'])
+    eval_data_train, eval_data_val, eval_data_test, eval_data_test_mwq = get_eval_data(main_config)
     print "finished building eval data"
     num_items_train = main_config['num_items_train']
 
@@ -229,7 +226,7 @@ if __name__ == "__main__":
     parser.add_argument('--num_epochs', dest='num_epochs', type=int, default=20)  # number of epochs
     parser.add_argument('--batch_size', dest='batch_size', type=int, default=100)  # batch size
     parser.add_argument('--update_rule', dest='update_rule', type=str, default='sgd')  # update rule
-    parser.add_argument('--lr_decay', dest='lr_decay', type=float, default=0.95)  # learning rate decay
+    parser.add_argument('--lr_decay', dest='lr_decay', type=float, default=0.90)  # learning rate decay
 
     # number of threads
     parser.add_argument("-t", dest="num_threads", default=1, help="number of threads")
@@ -238,18 +235,22 @@ if __name__ == "__main__":
     parser.add_argument('--num_exps', dest='num_exps', type=int, default=100)  # number of conditions on database
 
     # number of items for train, val and test
-    parser.add_argument('--num_items_train', dest='num_items_train', type=int, default=1000)  # 48,689
-    parser.add_argument('--subset_train', dest='subset_train', type=int, default=500)  # -1 to use them all
-    parser.add_argument('--subset_val', dest='subset_val', type=int, default=100)  # -1 to use them all
-    parser.add_argument('--subset_test', dest='subset_test', type=int, default=50)  # -1 to use them all
+    parser.add_argument('--num_items_train', dest='num_items_train', type=int, default=100)  # 48,689
+    #  num_items_train goes to MultiModalSolver for convenience
+    parser.add_argument('--eval_subset_train', dest='eval_subset_train', type=int, default=50)  # -1 to use them all
+    parser.add_argument('--eval_subset_val', dest='eval_subset_val', type=int, default=10)  # -1 to use them all
+    parser.add_argument('--eval_subset_test', dest='eval_subset_test', type=int, default=5)  # -1 to use them all
 
-    parser.add_argument('--subset_batch_data', dest='subset_batch_data', type=int, default=-1)  # -1 to use them all
+    # subset_batch_data goes to get_batch_data and get_associat_classifiers
+    # which affects BatchData and BatchDataAssociat.  It is not the batch_size.
+    # It's just to be able to do quick tests with a subset of the training data
+    parser.add_argument('--subset_batch_data', dest='subset_batch_data', type=int, default=100)  # -1 to use them all
 
     # configuration of association classifiers
     parser.add_argument('--classifier_type', dest='classifier_type', type=str, default='naive_bayes')
     parser.add_argument('--classifier_option', dest='classifier_option', type=str, default='bernoulli') #or multinomial
     parser.add_argument('--binarize', dest='binarize', type=float, default=0.0)
-    parser.add_argument('--classifier_subsample', dest='classifier_subsample', type=bool, default=False)
+    parser.add_argument('--classifier_subsample', dest='classifier_subsample', type=bool, default=True) # subsample pos or negative images so that we have the same number of pos and neg images
     parser.add_argument('--associat_margin', dest='associat_margin', type=float, default=1.)
 
     args = parser.parse_args()

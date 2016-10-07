@@ -189,8 +189,6 @@ class MultiModalNet(object):
         # X_txt_global = batch_data.X_txt_global
         # region2pair_id = batch_data.region2pair_id
         # word2pair_id = batch_data.word2pair_id
-        y = data.y
-        y_associat = data.y_associat
 
         assert self.use_local + self.use_global + self.use_associat == 1, "need to sum up to 1"
 
@@ -223,9 +221,12 @@ class MultiModalNet(object):
         sim_region_word_local, cache_mult_local = mult_forward(projected_imgs, projected_txt_local.T)
 
         # If in eval_mode return scores
-        #  (ie, similarity between regions and words)
+        #  (ie, similarity between regions and words). Loss is not computed
         if eval_mode:
             return sim_region_word_local
+
+        y = data.y
+        y_associat = data.y_associat
 
         dscores = np.zeros(sim_region_word_local.shape)
 

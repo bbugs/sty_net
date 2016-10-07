@@ -207,7 +207,7 @@ class EvaluationDataMWQ(EvaluationData):
             i += 1
 
 
-def get_eval_data(exp_config, subset_train=-1, subset_val=-1, subset_test=-1):
+def get_eval_data(exp_config):
     """
 
     Parameters
@@ -219,6 +219,10 @@ def get_eval_data(exp_config, subset_train=-1, subset_val=-1, subset_test=-1):
     eval_data_train
     eval_data_val
     """
+    eval_subset_train = exp_config['eval_subset_train']
+    eval_subset_val= exp_config['eval_subset_val']
+    eval_subset_test = exp_config['eval_subset_test']
+
     # ______________________________________________
     # Train Evaluation Data
     # ----------------------------------------------
@@ -239,7 +243,7 @@ def get_eval_data(exp_config, subset_train=-1, subset_val=-1, subset_test=-1):
     eval_data_train = EvaluationData(json_fname_train, cnn_fname_train, imgid2region_indices_train,
                                      w2v_vocab_fname, w2v_vectors_fname,
                                      external_vocab_fname,
-                                     subset_num_items=subset_train)
+                                     subset_num_items=eval_subset_train)
     # ______________________________________________
     # Val Evaluation Data
     # ----------------------------------------------
@@ -253,7 +257,7 @@ def get_eval_data(exp_config, subset_train=-1, subset_val=-1, subset_test=-1):
 
     eval_data_val = EvaluationData(json_fname_val, cnn_fname_val, imgid2region_indices_val,
                                    w2v_vocab_fname, w2v_vectors_fname,
-                                   external_vocab_fname, subset_num_items=subset_val)
+                                   external_vocab_fname, subset_num_items=eval_subset_val)
 
     # ______________________________________________
     # Test Evaluation Data
@@ -269,7 +273,7 @@ def get_eval_data(exp_config, subset_train=-1, subset_val=-1, subset_test=-1):
     eval_data_test = EvaluationData(json_fname_test, cnn_fname_test, imgid2region_indices_test,
                                     w2v_vocab_fname, w2v_vectors_fname,
                                     external_vocab_fname,
-                                    subset_num_items=subset_test)
+                                    subset_num_items=eval_subset_test)
 
     # ______________________________________________
     # Test Evaluation Data MWQ
@@ -285,6 +289,6 @@ def get_eval_data(exp_config, subset_train=-1, subset_val=-1, subset_test=-1):
     eval_data_test_mwq = EvaluationDataMWQ(json_fname_test, cnn_fname_test, imgid2region_indices_test,
                                            w2v_vocab_fname, w2v_vectors_fname,
                                            external_vocab_fname, mwq_aggregator=exp_config['mwq_aggregator'],
-                                           subset_num_items=subset_test)
+                                           subset_num_items=eval_subset_test)
 
     return eval_data_train, eval_data_val, eval_data_test, eval_data_test_mwq

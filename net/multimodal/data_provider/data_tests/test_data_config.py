@@ -34,9 +34,9 @@ exp_config['word2vec_vectors'] = root_path + 'data/word_vects/glove/vocab_vecs.t
 exp_config['external_vocab'] = root_path + 'data/fashion53k/external_vocab/zappos.vocab.txt'
 
 # target vocab (used in alignment_data.py on make_y_true_img2txt)
-exp_config['train_vocab'] = root_path + '/fashion53k/vocab_per_split/vocab_train_min_freq_5.txt'  #
-exp_config['val_vocab'] = root_path + '/fashion53k/vocab_per_split/vocab_val_min_freq_5.txt'  # do we need this ??
-exp_config['test_vocab'] = root_path + '/fashion53k/vocab_per_split/vocab_test_min_freq_5.txt'  # do we need this ??
+# exp_config['train_vocab'] = root_path + '/fashion53k/vocab_per_split/vocab_train_min_freq_5.txt'  #
+# exp_config['val_vocab'] = root_path + '/fashion53k/vocab_per_split/vocab_val_min_freq_5.txt'  # do we need this ??
+# exp_config['test_vocab'] = root_path + '/fashion53k/vocab_per_split/vocab_test_min_freq_5.txt'  # do we need this ??
 
 # path to save checkpoints and reports
 exp_config['checkpoint_path'] = root_path + '/data/fashion53k/sandbox_results/'
@@ -59,7 +59,7 @@ exp_config['use_finetune_w2v'] = False
 exp_config['start_modulation'] = 0.75  # start after 0.75 of epochs
 
 # local loss params
-exp_config['use_local'] = 0.
+exp_config['use_local'] = 0.5
 exp_config['local_margin'] = 1.  # keep constant
 exp_config['local_scale'] = 1.  # keep constant - regulate with use_local (kept for compatiblity with matlab code)
 exp_config['use_mil'] = False
@@ -73,7 +73,7 @@ exp_config['use_global'] = 0.
 # exp_config['thrglobalscore'] = False
 
 # association loss params
-exp_config['use_associat'] = 1.
+exp_config['use_associat'] = 0.5
 exp_config['classifier_type'] = 'naive_bayes'
 exp_config['classifier_option'] = 'bernoulli'
 exp_config['binarize'] = 0.0
@@ -93,8 +93,12 @@ exp_config['lr_decay'] = 1
 exp_config['print_every'] = 10  # print loss
 exp_config['num_epochs'] = 100
 exp_config['batch_size'] = 2
+
 exp_config['subset_batch_data'] = 20
 
-
+exp_config['num_items_train'] = 100  # goes to MultiModalSolver for convenience
+exp_config['eval_subset_train'] = 50
+exp_config['eval_subset_val'] = 20
+exp_config['eval_subset_test'] = 20
 
 

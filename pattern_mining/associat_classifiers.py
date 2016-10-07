@@ -251,7 +251,7 @@ def get_associat_classifiers(exp_config):
         subsample = exp_config['classifier_subsample']
         logging.info("id_{} training association classifiers".format(exp_config['id']))
         associat_classifiers.fit(option=classifier_option, binarize=binarize,
-                                 subsample=subsample, verbose=True)
+                                 subsample=subsample, verbose=True) #TODO: set verbose to False?
 
         return associat_classifiers
 
