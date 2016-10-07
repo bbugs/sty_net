@@ -5,7 +5,7 @@ exp_config = {}
 # assume all data has been precomputed in dc['root_path']
 exp_config['root_path'] = root_path = '../'  # assume module is run from sty_net
 exp_config['id'] = 0
-exp_config['subset_train'] = 30  # number of items from the train set to use. Normally -1 for experiments
+# exp_config['subset_train'] = 30  # number of items from the train set to use. Normally -1 for experiments
 
 # Image CNN (Full Image + Regions) features
 exp_config['num_regions_per_img'] = 4 + 1
@@ -92,13 +92,13 @@ exp_config['lr_decay'] = 1
 
 exp_config['print_every'] = 10  # print loss
 exp_config['num_epochs'] = 100
-exp_config['batch_size'] = 2
+exp_config['batch_size'] = 5
 
-exp_config['subset_batch_data'] = 20
+exp_config['subset_batch_data'] = -1
 
-exp_config['num_items_train'] = 100  # goes to MultiModalSolver for convenience
-exp_config['eval_subset_train'] = 50
-exp_config['eval_subset_val'] = 20
-exp_config['eval_subset_test'] = 20
+exp_config['num_items_train'] = -1  # goes to MultiModalSolver for convenience
+exp_config['eval_subset_train'] = -1
+exp_config['eval_subset_val'] = -1
+exp_config['eval_subset_test'] = -1
 
 
