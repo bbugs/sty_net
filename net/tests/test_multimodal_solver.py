@@ -6,12 +6,15 @@ from net.multimodal.data_provider.batch_class import get_batch_data
 from net.multimodal.multimodal_solver import MultiModalSolver
 from net.multimodal.data_provider.data_tests import test_data_config
 from net.multimodal import experiment
+import os
 
 
 ##############################################
 # Setup logger
 ##############################################
-fname = test_data_config.exp_config['checkpoint_path'] + '{}_experiment.log.txt'.format(time.strftime('%Y_%m_%d_%H%M'))
+path_dir = test_data_config.exp_config['checkpoint_path'] + '{}'.format(time.strftime('%Y_%m_%d_%H%M'))
+os.mkdir(path_dir)
+fname = path_dir + '/{}_experiment.log.txt'.format(time.strftime('%Y_%m_%d_%H%M'))
 logging.basicConfig(filename=fname, level=logging.INFO)
 
 num_items_train = test_data_config.exp_config['num_items_train']
