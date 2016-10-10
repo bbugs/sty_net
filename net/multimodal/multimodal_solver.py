@@ -406,7 +406,7 @@ class MultiModalSolver(object):
             self._step()  # The magic happens here
 
             if t == 0: loss0 = self.loss_history[0]
-            if self.loss_history[t] > 10 * loss0:
+            if self.loss_history[t] > 1e10 * loss0:
                 abort_msg = "id_{} \t epoch_{} \t reg_{} \t lr_{} \t hd_{} \t loss is exploiding. ABORT!".\
                     format(self.id, self.epoch, self.exp_config['reg'],
                            self.exp_config['optim_config']['learning_rate'],
