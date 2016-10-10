@@ -12,13 +12,12 @@ imgid2region_indices = multimodal_utils.mk_toy_img_id2region_indices(json_fname,
 w2v_vocab_fname = test_data_config.exp_config['word2vec_vocab']
 w2v_vectors_fname = test_data_config.exp_config['word2vec_vectors']
 
-batch_data = BatchData(json_fname, cnn_fname,
-                       imgid2region_indices,
-                       w2v_vocab_fname,
-                       w2v_vectors_fname,
+batch_data = BatchData(json_fname, cnn_fname, imgid2region_indices,
+                       w2v_vocab_fname, w2v_vectors_fname,
+                       batch_size=2,
                        subset_num_items=2)
 
-batch_data.mk_minibatch(batch_size=2, verbose=True, debug=True)
+batch_data.mk_minibatch(verbose=True, debug=True)
 
 # test n_unique_words
 assert batch_data.n_unique_words == 11

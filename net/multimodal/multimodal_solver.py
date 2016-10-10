@@ -50,6 +50,7 @@ class MultiModalSolver(object):
         self.model = model
         self.batch_data = batch_data
         self.num_items_train = num_items_train  # eval_data_train.X_img.shape[0]  # number of images in training set
+        self.batch_size = self.batch_data.batch_size
 
         self.eval_data_train = eval_data_train
         self.eval_data_val = eval_data_val
@@ -95,7 +96,6 @@ class MultiModalSolver(object):
         self.update_rule = exp_config['update_rule']
         self.optim_config = exp_config['optim_config']
         self.lr_decay = exp_config['lr_decay']
-        self.batch_size = exp_config['batch_size']
         self.num_epochs = exp_config['num_epochs']
 
         self.print_every = exp_config['print_every']
@@ -159,7 +159,7 @@ class MultiModalSolver(object):
         """
         # Make a minibatch of training data
 
-        self.batch_data.mk_minibatch(batch_size=self.batch_size, verbose=False)  # verbose to False if you dont want to see the img_ids from the minibatch
+        self.batch_data.mk_minibatch(verbose=False)  # verbose to False if you dont want to see the img_ids from the minibatch
 
         # Compute loss and gradient
         loss, grads = self.model.loss(self.batch_data, eval_mode=False)

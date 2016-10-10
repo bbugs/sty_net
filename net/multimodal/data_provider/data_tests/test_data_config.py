@@ -86,20 +86,19 @@ exp_config['update_rule'] = 'sgd'
 exp_config['reg'] = 0  # regularization
 exp_config['hidden_dim'] = 100  # size of multimodal space
 
-optim_config={'learning_rate': 1}
+optim_config={'learning_rate': 1e-6}
 exp_config['optim_config'] = optim_config
 
 exp_config['lr_decay'] = 0.001
 
 exp_config['print_every'] = 10  # print loss
 exp_config['num_epochs'] = 50
-exp_config['batch_size'] = 100
+exp_config['batch_size'] = 10
 
-exp_config['subset_batch_data'] = -1
-
-exp_config['num_items_train'] = 48689  #48689  # goes to MultiModalSolver for convenience
-exp_config['eval_subset_train'] = -1
-exp_config['eval_subset_val'] = -1
-exp_config['eval_subset_test'] = -1
+exp_config['num_items_train'] = 100  #48689  # goes to MultiModalSolver for convenience
+exp_config['eval_subset_train'] = 50
+exp_config['eval_subset_val'] = 30
+exp_config['eval_subset_test'] = 20
+exp_config['subset_batch_data'] = 100
 
 

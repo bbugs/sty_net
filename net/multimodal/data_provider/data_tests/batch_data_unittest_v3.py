@@ -14,10 +14,11 @@ w2v_vectors_fname = test_data_config.exp_config['word2vec_vectors']
 
 batch_data = BatchData(json_fname, cnn_fname, imgid2region_indices,
                        w2v_vocab_fname, w2v_vectors_fname,
+                       batch_size=3,
                        subset_num_items=3)  # TODO: change to -1 in real experiments
 
 
-batch_data.mk_minibatch(batch_size=3, verbose=True, debug=True)
+batch_data.mk_minibatch(verbose=True, debug=True)
 
 print batch_data.X_img
 print batch_data.y

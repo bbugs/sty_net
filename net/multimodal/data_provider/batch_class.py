@@ -1,20 +1,25 @@
 import numpy as np
 
-from net.multimodal import multimodal_utils
+from net.multimodal import multimodal_utils as mutils
 from net.multimodal.data_provider.experiment_data import ExperimentData
 from pattern_mining import associat_classifiers
 
 
 class BatchData(ExperimentData):
-    def __init__(self, json_fname, cnn_fname, img_id2cnn_region_indeces,
-                 w2v_vocab_fname, w2v_vectors_fname, subset_num_items=-1):
+    def __init__(self, json_fname, cnn_fname,
+                 img_id2cnn_region_indeces,
+                 w2v_vocab_fname, w2v_vectors_fname,
+                 batch_size, subset_num_items=-1):
 
         print "creating a new BatchData object"
-        ExperimentData.__init__(self, json_fname, cnn_fname, img_id2cnn_region_indeces,
-                                w2v_vocab_fname, w2v_vectors_fname, subset_num_items)
+        ExperimentData.__init__(self, json_fname, cnn_fname,
+                                img_id2cnn_region_indeces,
+                                w2v_vocab_fname, w2v_vectors_fname,
+                                subset_num_items)
 
         self.cnn_dim = self.cnn_data.get_cnn_dim()
         self.w2v_dim = self.w2v_data.get_word2vec_dim()
+        self.batch_size = batch_size
 
         return
 
@@ -100,8 +105,8 @@ class BatchData(ExperimentData):
     #
     #     return X_img, X_txt, region2pair_id, word2pair_id
 
-    def _set_batch_img_ids(self, batch_size, verbose=False, debug=False):
-        self.img_ids = self.json_file.get_random_img_ids(batch_size)
+    def _set_batch_img_ids(self, verbose=False, debug=False):
+        self.img_ids = self.json_file.get_random_img_ids(num_imgs=self.batch_size)
         self.n_imgs = len(self.img_ids)
         if debug:
             self.img_ids = sorted(self.img_ids)  # so that the unittests can expect the output in this order
@@ -170,11 +175,10 @@ class BatchData(ExperimentData):
     def _mk_X_txt_global(self):
         self.X_txt_global = self.w2v_data.get_word_vectors_of_word_list(self.word_seq)
 
-    def mk_minibatch(self, batch_size, verbose=False, debug=False):
+    def mk_minibatch(self, verbose=False, debug=False):
         """
         Args:
             self:
-            batch_size: int
             verbose: bool
 
         Creates:
@@ -187,7 +191,7 @@ class BatchData(ExperimentData):
 
         """
         self._reset()
-        self._set_batch_img_ids(batch_size, verbose, debug)
+        self._set_batch_img_ids(verbose, debug)
         self._set_num_regions_in_batch()
         self._set_words_in_batch()
 
@@ -215,22 +219,22 @@ class BatchData(ExperimentData):
 class BatchDataAssociat(BatchData):
 
     def __init__(self, json_fname, cnn_fname, img_id2cnn_region_indeces,
-                 w2v_vocab_fname, w2v_vectors_fname, classifiers, subset_num_items=-1):
+                 w2v_vocab_fname, w2v_vectors_fname, classifiers,
+                 batch_size, subset_num_items=-1):
         """
 
         Args:
+            batch_size:
             json_fname: str
             cnn_fname:  str
             img_id2cnn_region_indeces: int
             w2v_vocab_fname:  str
             w2v_vectors_fname: str
-            classifiers:  dict of classifiers st, classifiers[word] = clf, a trained
-                          classifier for the word.
             subset_num_items: int
         """
 
         BatchData.__init__(self, json_fname, cnn_fname, img_id2cnn_region_indeces,
-                 w2v_vocab_fname, w2v_vectors_fname, subset_num_items)
+                           w2v_vocab_fname, w2v_vectors_fname, batch_size, subset_num_items)
 
         self.classifiers = classifiers
 
@@ -257,31 +261,32 @@ def get_batch_data(exp_config):
     json_fname_train = exp_config['json_path_train']
     cnn_fname_train = exp_config['cnn_regions_path_train']
     num_regions_per_img = exp_config['num_regions_per_img']  # TODO: replace this by the actual num_regions_per_img
-    imgid2region_indices_train = multimodal_utils.mk_toy_img_id2region_indices(json_fname=json_fname_train,
-                                                                               cnn_fname=cnn_fname_train,
-                                                                               num_regions_per_img=num_regions_per_img,
-                                                                               subset_num_items=-1)
+    imgid2region_indices_train = mutils.mk_toy_img_id2region_indices(json_fname=json_fname_train,
+                                                                     cnn_fname=cnn_fname_train,
+                                                                     num_regions_per_img=num_regions_per_img,
+                                                                     subset_num_items=-1)
     w2v_vocab_fname = exp_config['word2vec_vocab']
     w2v_vectors_fname = exp_config['word2vec_vectors']
     subset_num_items = exp_config['subset_batch_data']
+    batch_size = exp_config['batch_size']
 
     if exp_config['use_associat'] > 0:
         # get trained classifiers
         classifiers = associat_classifiers.get_associat_classifiers(exp_config)
 
-        batch_data = BatchDataAssociat(json_fname=json_fname_train,
-                                       cnn_fname=cnn_fname_train,
+        batch_data = BatchDataAssociat(json_fname=json_fname_train, cnn_fname=cnn_fname_train,
                                        img_id2cnn_region_indeces=imgid2region_indices_train,
                                        w2v_vocab_fname=w2v_vocab_fname,
                                        w2v_vectors_fname=w2v_vectors_fname,
                                        classifiers=classifiers,
+                                       batch_size=batch_size,
                                        subset_num_items=subset_num_items)
 
     else:
-        batch_data = BatchData(json_fname=json_fname_train,
-                               cnn_fname=cnn_fname_train,
+        batch_data = BatchData(json_fname=json_fname_train, cnn_fname=cnn_fname_train,
                                img_id2cnn_region_indeces=imgid2region_indices_train,
                                w2v_vocab_fname=w2v_vocab_fname,
                                w2v_vectors_fname=w2v_vectors_fname,
+                               batch_size=batch_size,
                                subset_num_items=subset_num_items)
     return batch_data

@@ -50,9 +50,10 @@ batch_data = BatchData(json_fname, cnn_fname,
                        imgid2region_indices,
                        w2v_vocab_fname,
                        w2v_vectors_fname,
+                       batch_size=2,
                        subset_num_items=2)
 
-batch_data.mk_minibatch(batch_size=2, verbose=True, debug=True)
+batch_data.mk_minibatch(verbose=True, debug=True)
 
 X_img = batch_data.X_img
 unique_words_in_batch = batch_data.unique_words_list
