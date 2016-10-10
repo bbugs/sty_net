@@ -57,7 +57,7 @@ exp_config['use_finetune_w2v'] = False
 exp_config['start_modulation'] = 0.75  # start after 0.75 of epochs
 
 # local loss params
-exp_config['use_local'] = 1.
+exp_config['use_local'] = 0.
 exp_config['local_margin'] = 1.  # keep constant
 exp_config['local_scale'] = 1.  # keep constant - regulate with use_local (kept for compatiblity with matlab code)
 exp_config['use_mil'] = False
@@ -71,7 +71,7 @@ exp_config['use_global'] = 0.
 # exp_config['thrglobalscore'] = False
 
 # association loss params
-exp_config['use_associat'] = 0.
+exp_config['use_associat'] = 1.
 exp_config['classifier_type'] = 'naive_bayes'
 exp_config['classifier_option'] = 'bernoulli'
 exp_config['binarize'] = 0.0
@@ -86,20 +86,20 @@ exp_config['update_rule'] = 'sgd'
 exp_config['reg'] = 0  # regularization
 exp_config['hidden_dim'] = 100  # size of multimodal space
 
-optim_config={'learning_rate': 1e-7}
+optim_config={'learning_rate': 1}
 exp_config['optim_config'] = optim_config
 
-exp_config['lr_decay'] = 1
+exp_config['lr_decay'] = 0.001
 
 exp_config['print_every'] = 10  # print loss
 exp_config['num_epochs'] = 50
-exp_config['batch_size'] = 5
+exp_config['batch_size'] = 100
 
-exp_config['subset_batch_data'] = 20
+exp_config['subset_batch_data'] = -1
 
-exp_config['num_items_train'] = 20  # goes to MultiModalSolver for convenience
-exp_config['eval_subset_train'] = 20
-exp_config['eval_subset_val'] = 20
-exp_config['eval_subset_test'] = 20
+exp_config['num_items_train'] = 48689  #48689  # goes to MultiModalSolver for convenience
+exp_config['eval_subset_train'] = -1
+exp_config['eval_subset_val'] = -1
+exp_config['eval_subset_test'] = -1
 
 
