@@ -135,7 +135,7 @@ if __name__ == "__main__":
     parser.add_argument('--num_regions_per_img', dest='num_regions_per_img', type=int, default=5)
 
     # evaluation parameters
-    parser.add_argument('--Ks', dest='Ks', default=[1, 5, 10, 15, 20, 30, 75, 100])
+    parser.add_argument('--Ks', dest='Ks', default=[1, 5, 10, 15, 20, 30, 50, 75, 100])
     parser.add_argument('--eval_k', dest='eval_k', type=int, default=10)  # eval P@K, R@K to assess best performance
     parser.add_argument('--mwq_aggregator', type=str, default='max')  # or max
 
@@ -223,35 +223,41 @@ if __name__ == "__main__":
     # start after 0.75 of epochs
     parser.add_argument('--start_modulation', dest='start_modulation', type=float, default=0.75)
     parser.add_argument('--print_every', dest='print_every', type=int, default=10)  # print loss
-    parser.add_argument('--num_epochs', dest='num_epochs', type=int, default=20)  # number of epochs
-    parser.add_argument('--batch_size', dest='batch_size', type=int, default=100)  # batch size
+    parser.add_argument('--num_epochs', dest='num_epochs', type=int, default=3)  # number of epochs
     parser.add_argument('--update_rule', dest='update_rule', type=str, default='sgd')  # update rule
     parser.add_argument('--lr_decay', dest='lr_decay', type=float, default=0.90)  # learning rate decay
 
     # number of threads
     parser.add_argument("-t", dest="num_threads", default=1, help="number of threads")
 
+    # configuration of association classifiers
+    parser.add_argument('--classifier_type', dest='classifier_type', type=str, default='naive_bayes')
+    parser.add_argument('--classifier_option', dest='classifier_option', type=str, default='bernoulli') #or multinomial
+    parser.add_argument('--binarize', dest='binarize', type=float, default=2.0)
+    parser.add_argument('--classifier_subsample', dest='classifier_subsample', type=bool, default=True) # subsample pos or negative images so that we have the same number of pos and neg images
+    parser.add_argument('--associat_margin', dest='associat_margin', type=float, default=1.)
+
     # number of experiments
     parser.add_argument('--num_exps', dest='num_exps', type=int, default=100)  # number of conditions on database
 
     # number of items for train, val and test
-    parser.add_argument('--num_items_train', dest='num_items_train', type=int, default=100)  # 48,689
+    parser.add_argument('--num_items_train', dest='num_items_train', type=int, default=211)  # 48,689 or 211 if word driven batch
     #  num_items_train goes to MultiModalSolver for convenience
     parser.add_argument('--eval_subset_train', dest='eval_subset_train', type=int, default=50)  # -1 to use them all
     parser.add_argument('--eval_subset_val', dest='eval_subset_val', type=int, default=10)  # -1 to use them all
     parser.add_argument('--eval_subset_test', dest='eval_subset_test', type=int, default=5)  # -1 to use them all
 
+    # batch data params
+    parser.add_argument('--subset_batch_data', dest='subset_batch_data', type=int, default=100)  # -1 to use them all
     # subset_batch_data goes to get_batch_data and get_associat_classifiers
     # which affects BatchData and BatchDataAssociat.  It is not the batch_size.
     # It's just to be able to do quick tests with a subset of the training data
-    parser.add_argument('--subset_batch_data', dest='subset_batch_data', type=int, default=100)  # -1 to use them all
 
-    # configuration of association classifiers
-    parser.add_argument('--classifier_type', dest='classifier_type', type=str, default='naive_bayes')
-    parser.add_argument('--classifier_option', dest='classifier_option', type=str, default='bernoulli') #or multinomial
-    parser.add_argument('--binarize', dest='binarize', type=float, default=0.0)
-    parser.add_argument('--classifier_subsample', dest='classifier_subsample', type=bool, default=True) # subsample pos or negative images so that we have the same number of pos and neg images
-    parser.add_argument('--associat_margin', dest='associat_margin', type=float, default=1.)
+    parser.add_argument('--word_driven_batch', dest='word_driven_batch', type=bool, default=True)
+    parser.add_argument('--max_n_imgs_per_word', dest='max_n_imgs_per_word', type=int, default=50)
+    parser.add_argument('--batch_size', dest='batch_size', type=int, default=1)
+    parser.add_argument('--ck_perform_every', dest='ck_perform_every', type=int, default=20)
+    # if word_driven_bath is True, batch_size should be <= 1.
 
     args = parser.parse_args()
 

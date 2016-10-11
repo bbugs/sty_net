@@ -57,7 +57,7 @@ exp_config['use_finetune_w2v'] = False
 exp_config['start_modulation'] = 0.75  # start after 0.75 of epochs
 
 # local loss params
-exp_config['use_local'] = 0.
+exp_config['use_local'] = 1.
 exp_config['local_margin'] = 1.  # keep constant
 exp_config['local_scale'] = 1.  # keep constant - regulate with use_local (kept for compatiblity with matlab code)
 exp_config['use_mil'] = False
@@ -71,7 +71,7 @@ exp_config['use_global'] = 0.
 # exp_config['thrglobalscore'] = False
 
 # association loss params
-exp_config['use_associat'] = 1.
+exp_config['use_associat'] = 0.
 exp_config['classifier_type'] = 'naive_bayes'
 exp_config['classifier_option'] = 'bernoulli'
 exp_config['binarize'] = 0.0
@@ -92,13 +92,18 @@ exp_config['optim_config'] = optim_config
 exp_config['lr_decay'] = 0.001
 
 exp_config['print_every'] = 10  # print loss
-exp_config['num_epochs'] = 50
-exp_config['batch_size'] = 10
+exp_config['num_epochs'] = 20
 
-exp_config['num_items_train'] = 100  #48689  # goes to MultiModalSolver for convenience
-exp_config['eval_subset_train'] = 50
-exp_config['eval_subset_val'] = 30
-exp_config['eval_subset_test'] = 20
-exp_config['subset_batch_data'] = 100
+exp_config['num_items_train'] = 200  #48689  # goes to MultiModalSolver for convenience
+exp_config['eval_subset_train'] = 20
+exp_config['eval_subset_val'] = 10
+exp_config['eval_subset_test'] = 5
+exp_config['subset_batch_data'] = 20
+
+exp_config['word_driven_batch'] = True
+exp_config['max_n_imgs_per_word'] = 200
+exp_config['batch_size'] = 1
+
+exp_config['ck_perform_every'] = 20
 
 

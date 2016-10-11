@@ -99,19 +99,19 @@ class AssociatClassifiers(object):
 
         n_rows = len(positive_img_ids) + len(negative_img_ids)
         X = np.zeros((n_rows, self.cnn_dim))
-        y = np.ones(n_rows, dtype=int)
+        y = -np.ones(n_rows, dtype=int)
 
         i = 0
         for img_id in positive_img_ids:
             # get region index
             region_index = self.img_id2cnn_region_indeces[img_id]
             X[i, :] = self.cnn_file.get_cnn_from_index(region_index[0])
+            y[i] = 1
             i += 1
         for img_id in negative_img_ids:
             # get region index
             region_index = self.img_id2cnn_region_indeces[img_id]
             X[i, :] = self.cnn_file.get_cnn_from_index(region_index[0])
-            y[i] = -1
             i += 1
         return X, y
 

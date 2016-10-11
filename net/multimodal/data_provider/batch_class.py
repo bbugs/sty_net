@@ -251,8 +251,6 @@ def get_batch_data(exp_config):
     Parameters
     ----------
     exp_config
-    subset_num_items: when reading the json file, you can choose
-    to get only the first subset_num_items. For experiments, it should be -1
 
     Returns
     -------
@@ -270,23 +268,54 @@ def get_batch_data(exp_config):
     subset_num_items = exp_config['subset_batch_data']
     batch_size = exp_config['batch_size']
 
-    if exp_config['use_associat'] > 0:
-        # get trained classifiers
-        classifiers = associat_classifiers.get_associat_classifiers(exp_config)
+    if exp_config['word_driven_batch'] is True:
+        max_n_imgs_per_word = exp_config['max_n_imgs_per_word']
+        from net.multimodal.data_provider.batch_class_word_driven import BatchDataWordDriven, \
+            BatchDataWordDrivenAssociat
 
-        batch_data = BatchDataAssociat(json_fname=json_fname_train, cnn_fname=cnn_fname_train,
-                                       img_id2cnn_region_indeces=imgid2region_indices_train,
-                                       w2v_vocab_fname=w2v_vocab_fname,
-                                       w2v_vectors_fname=w2v_vectors_fname,
-                                       classifiers=classifiers,
-                                       batch_size=batch_size,
-                                       subset_num_items=subset_num_items)
+        if exp_config['use_associat'] > 0:
+            # get trained classifiers
+            classifiers = associat_classifiers.get_associat_classifiers(exp_config)
 
-    else:
-        batch_data = BatchData(json_fname=json_fname_train, cnn_fname=cnn_fname_train,
-                               img_id2cnn_region_indeces=imgid2region_indices_train,
-                               w2v_vocab_fname=w2v_vocab_fname,
-                               w2v_vectors_fname=w2v_vectors_fname,
-                               batch_size=batch_size,
-                               subset_num_items=subset_num_items)
-    return batch_data
+            batch_data = BatchDataWordDrivenAssociat(json_fname=json_fname_train, cnn_fname=cnn_fname_train,
+                                                     img_id2cnn_region_indeces=imgid2region_indices_train,
+                                                     w2v_vocab_fname=w2v_vocab_fname,
+                                                     w2v_vectors_fname=w2v_vectors_fname,
+                                                     batch_size=batch_size,
+                                                     max_n_imgs_per_word=max_n_imgs_per_word,
+                                                     classifiers=classifiers,
+                                                     min_word_freq=5,
+                                                     subset_num_items=subset_num_items)
+
+        else:
+            batch_data = BatchDataWordDriven(json_fname=json_fname_train, cnn_fname=cnn_fname_train,
+                                             img_id2cnn_region_indeces=imgid2region_indices_train,
+                                             w2v_vocab_fname=w2v_vocab_fname,
+                                             w2v_vectors_fname=w2v_vectors_fname,
+                                             batch_size=batch_size,
+                                             max_n_imgs_per_word=max_n_imgs_per_word,
+                                             min_word_freq=5,
+                                             subset_num_items=subset_num_items)
+        return batch_data
+
+    elif exp_config['word_drien_batch'] is False:
+        if exp_config['use_associat'] > 0:
+            # get trained classifiers
+            classifiers = associat_classifiers.get_associat_classifiers(exp_config)
+
+            batch_data = BatchDataAssociat(json_fname=json_fname_train, cnn_fname=cnn_fname_train,
+                                           img_id2cnn_region_indeces=imgid2region_indices_train,
+                                           w2v_vocab_fname=w2v_vocab_fname,
+                                           w2v_vectors_fname=w2v_vectors_fname,
+                                           classifiers=classifiers,
+                                           batch_size=batch_size,
+                                           subset_num_items=subset_num_items)
+
+        else:
+            batch_data = BatchData(json_fname=json_fname_train, cnn_fname=cnn_fname_train,
+                                   img_id2cnn_region_indeces=imgid2region_indices_train,
+                                   w2v_vocab_fname=w2v_vocab_fname,
+                                   w2v_vectors_fname=w2v_vectors_fname,
+                                   batch_size=batch_size,
+                                   subset_num_items=subset_num_items)
+        return batch_data
