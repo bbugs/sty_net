@@ -4,7 +4,7 @@ from net import optim
 from net.multimodal.evaluation import metrics
 import pickle
 import time
-from net.multimodal import multimodal_utils
+from net.multimodal import multimodal_utils as mutils
 
 
 class MultiModalSolver(object):
@@ -99,6 +99,7 @@ class MultiModalSolver(object):
         self.num_epochs = exp_config['num_epochs']
 
         self.print_every = exp_config['print_every']
+        self.ck_perform_every = exp_config['ck_perform_every']
         self.verbose = verbose
 
         self.status = None
@@ -324,14 +325,14 @@ class MultiModalSolver(object):
         """
 
         if mode == 'classification':
-            P = performance[mode][split]['P']
-            R = performance[mode][split]['R']
-            F = performance[mode][split]['F']
+            P = performance[mode][split]['P']*100
+            R = performance[mode][split]['R']*100
+            F = performance[mode][split]['F']*100
             return P, R, F
         elif mode == 'ranking':
-            P = performance[mode][task][split]['P'][K]
-            R = performance[mode][task][split]['R'][K]
-            F = performance[mode][task][split]['F'][K]
+            P = performance[mode][task][split]['P'][K]*100
+            R = performance[mode][task][split]['R'][K]*100
+            F = performance[mode][task][split]['F'][K]*100
             return P, R, F
         else:
             raise ValueError("mode should be either classification or ranking")
@@ -354,7 +355,7 @@ class MultiModalSolver(object):
             for split in splits:
                 for k in ks:
                     P, R, F = self.get_P_R_F_from_performance(performance, mode, task, split, k)
-                    msg += "{0} {1} \t P{2} {3:.4f} \t R{2} {4:.4f} \t".\
+                    msg += "{0} {1} \t P{2} {3:.1f} \t R{2} {4:.1f} \t".\
                         format(task, split, k, P, R, )
                 msg += '\n'
             msg += '\n'
@@ -364,7 +365,7 @@ class MultiModalSolver(object):
         split = 'mwq_test'
         for k in ks:
             P, R, F = self.get_P_R_F_from_performance(performance, mode, task=task, split=split, K=k)
-            msg += "{0} {1} \t P{2} {3:.4f} \t R{2} {4:.4f} \t".\
+            msg += "{0} {1} \t P{2} {3:.1f} \t R{2} {4:.1f} \t".\
                 format(task, split, k, P, R, )
         msg += '\n\n'
 
@@ -374,7 +375,7 @@ class MultiModalSolver(object):
         k = None  # k is not relevant in classfication mode
         for split in splits:
             P, R, F = self.get_P_R_F_from_performance(performance, mode, task, split, k)
-            msg += "i2t {0} \t P {1:.4f} \t R {2:.4f}".format(split, P, R)
+            msg += "i2t {0} \t P {1:.1f} \t R {2:.1f}".format(split, P, R)
             msg += "\n"
         return msg
 
@@ -382,6 +383,7 @@ class MultiModalSolver(object):
         """
         Run optimization to train the model.
         """
+        self._reset()
         logging.info("id_{} {} started training".format(self.id, time.strftime('%Y_%m_%d_%H%M')))
         iterations_per_epoch = max(self.num_items_train / self.batch_size, 1)
         num_iterations = self.num_epochs * iterations_per_epoch
@@ -426,17 +428,18 @@ class MultiModalSolver(object):
 
             # At the end of every epoch, increment the epoch counter and decay the
             # learning rate.
-            epoch_end = (t + 1) % iterations_per_epoch == 0
+            epoch_end = t % (iterations_per_epoch - 1) == 0
             if epoch_end:
                 self.epoch += 1
                 for k in self.optim_configs:
                     self.optim_configs[k]['learning_rate'] *= self.lr_decay
 
             # Create report, Check train and val accuracy on the first iteration, the last
-            # iteration, and at the end of each epoch.
+            # iteration, at the end of each epoch and at ck_perform_every.
             first_it = (t == 0)
-            last_it = (t + 1 == num_iterations)
-            if first_it or last_it or epoch_end:
+            last_it = (t == num_iterations - 1)
+            ck_perf = (t % self.ck_perform_every) == 0
+            if first_it or last_it or epoch_end or ck_perf:
 
                 # Create report
                 report = {}
@@ -450,14 +453,19 @@ class MultiModalSolver(object):
                 performance = self.compute_performance()
 
                 # Take the avg of f1@K for img2txt and txt2img
-                f1_val_score_at_eval_k = 0.5 * performance['ranking']['i2t']['val']['F'][self.eval_k] + \
-                                    0.5 * performance['ranking']['t2i']['val']['F'][self.eval_k]
+                f1_val_score_at_eval_k = 100 * (0.5 * performance['ranking']['i2t']['val']['F'][self.eval_k] +
+                                    0.5 * performance['ranking']['t2i']['val']['F'][self.eval_k])
 
-                f1_train_score_at_eval_k = 0.5 * performance['ranking']['i2t']['train']['F'][self.eval_k] + \
-                                      0.5 * performance['ranking']['t2i']['train']['F'][self.eval_k]
+                f1_train_score_at_eval_k = 100 * (0.5 * performance['ranking']['i2t']['train']['F'][self.eval_k] +
+                                      0.5 * performance['ranking']['t2i']['train']['F'][self.eval_k])
 
-                i2t_test_prec_at_eval_k = performance['ranking']['i2t']['test']['P'][self.eval_k]
-                i2t_test_recall_at_eval_k = performance['ranking']['i2t']['test']['R'][self.eval_k]
+                i2t_test_prec_at_eval_k = 100 * performance['ranking']['i2t']['test']['P'][self.eval_k]
+                i2t_test_recall_at_eval_k = 100 * performance['ranking']['i2t']['test']['R'][self.eval_k]
+
+                t2i_test_prec_at_eval_k = 100 * performance['ranking']['t2i']['test']['P'][self.eval_k]
+                t2i_test_recall_at_eval_k = 100 * performance['ranking']['t2i']['test']['R'][self.eval_k]
+
+                t2i_mwq_test_recall_at_eval_k = 100 * performance['ranking']['t2i']['mwq_test']['R'][self.eval_k]
 
                 # TODO: is check_performance compatible with associat_loss?
 
@@ -466,47 +474,6 @@ class MultiModalSolver(object):
                 report['performance'] = performance
                 report['performance_history'] = self.performance_history
 
-                # report['txt2img'] = {}
-                # report['txt2img']['train_current_performance'] = {'p': p_t2i_t, 'r': r_t2i_t, 'f1': f1_t2i_t}
-                # report['txt2img']['val_current_performance'] = {'p': p_t2i_v, 'r': r_t2i_v, 'f1': f1_t2i_v}
-
-                # overall average f1 of both tasks both tasks img2txt & txt2img
-                # f1_train_score = f1_i2t_t
-                # f1_val_score = f1_i2t_v
-
-                # img2txt
-                # self.train_f1_img2txt_history.append(f1_i2t_t)
-                # self.train_precision_img2txt_history.append(p_i2t_t)
-                # self.train_recall_img2txt_history.append(r_i2t_t)
-                #
-                # self.val_f1_img2txt_history.append(f1_i2t_v)
-                # self.val_precision_img2txt_history.append(p_i2t_v)
-                # self.val_recall_img2txt_history.append(r_i2t_v)
-
-                # txt2img
-                # self.train_f1_txt2img_history.append(f1_t2i_t)
-                # self.train_precision_txt2img_history.append(p_t2i_t)
-                # self.train_recall_txt2img_history.append(r_t2i_t)
-                #
-                # self.val_f1_txt2img_history.append(f1_t2i_v)
-                # self.val_precision_txt2img_history.append(p_t2i_v)
-                # self.val_recall_txt2img_history.append(r_t2i_v)
-
-                # report['img2txt']['train_history'] = {'p': self.train_precision_img2txt_history,
-                #                                       'r': self.train_recall_img2txt_history,
-                #                                       'f1': self.train_f1_img2txt_history}
-                #
-                # report['img2txt']['val_history'] = {'p': self.val_precision_img2txt_history,
-                #                                     'r': self.val_recall_img2txt_history,
-                #                                     'f1': self.val_f1_img2txt_history}
-
-                # report['txt2img']['train_history'] = {'p': self.train_precision_txt2img_history,
-                #                                       'r': self.train_recall_txt2img_history,
-                #                                       'f1': self.train_f1_txt2img_history}
-                #
-                # report['txt2img']['val_history'] = {'p': self.val_precision_txt2img_history,
-                #                                     'r': self.val_recall_txt2img_history,
-                #                                     'f1': self.val_f1_txt2img_history}
 
                 # Check if performance is best so far, and if so save report and
                 # keep best weights in self.best_params
@@ -518,8 +485,12 @@ class MultiModalSolver(object):
                         self.best_params[k] = v.copy()
                     report['model'] = self.best_params
 
-                    report_fname = 'report_valf1_{0:.4f}_id_{1}_hd_{2}_' \
-                                   'l_{3:.1f}_g_{4:.1f}_a_{5:.1f}_e_{6}_p_{7:.4f}_r_{8:.4f}.pkl'.\
+                    report_fname = 'report_valf1_{0:.2f}_id_{1}_hd_{2}_' \
+                                   'l_{3:.1f}_g_{4:.1f}_a_{5:.1f}_' \
+                                   'e_{6}_p_{7:.2f}_r_{8:.2f}_' \
+                                   'p_{9:.2f}_r_{10:.2f}_r_{11:.2f}_it_{12}_' \
+                                   'p_{13:.2f}_r_{14:.2f}_' \
+                                   'p_{15:.2f}_r_{16:.2f}.pkl'.\
                                    format(self.best_val_f1_score,
                                           self.id,
                                           self.model.h,
@@ -528,15 +499,23 @@ class MultiModalSolver(object):
                                           self.exp_config['use_associat'],
                                           self.epoch,
                                           i2t_test_prec_at_eval_k,
-                                          i2t_test_recall_at_eval_k)
+                                          i2t_test_recall_at_eval_k,
+                                          t2i_test_prec_at_eval_k,
+                                          t2i_test_recall_at_eval_k,
+                                          t2i_mwq_test_recall_at_eval_k,
+                                          t,
+                                          100 * performance['ranking']['i2t']['val']['P'][self.eval_k],
+                                          100 * performance['ranking']['i2t']['val']['R'][self.eval_k],
+                                          100 * performance['ranking']['t2i']['val']['P'][self.eval_k],
+                                          100 * performance['ranking']['t2i']['val']['R'][self.eval_k])
 
-                    multimodal_utils.write_report(report_fname, report, self.exp_config, self.best_val_f1_score)
+                    mutils.write_report_for_exp_id(report_fname, report, self.exp_config, self.best_val_f1_score)
 
                 if last_it:  # save an endreport on last iteration
                     report['model'] = {}  # no need to save weights on end report
                     time_stamp = time.strftime('%Y_%m_%d_%H%M')
                     end_report_fname = self.exp_config['checkpoint_path']
-                    end_report_fname += '/id_{0}_end_report_{1}_tr_{2:.4f}_val_{3:.4f}.pkl'.format(self.exp_config['id'],
+                    end_report_fname += '/id_{0}_end_report_{1}_tr_{2:.2f}_val_{3:.2f}.pkl'.format(self.exp_config['id'],
                                                                                                    time_stamp,
                                                                                                    self.train_f1_of_best_val,
                                                                                                    self.best_val_f1_score,
@@ -546,6 +525,7 @@ class MultiModalSolver(object):
                     logging.info("saved report to {}".format(end_report_fname))
 
                 msg = self.mk_status_msg(iter_num=t, performance=performance)
+                print "avg_i2t_t2i_val_f1_at{0}:\t {1:.2f}".format(self.eval_k, f1_val_score_at_eval_k)
                 print msg
                 logging.info(msg)
 

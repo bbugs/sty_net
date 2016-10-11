@@ -33,6 +33,55 @@ def init_random_weights(n_rows, n_cols=None):
         return w
 
 
+def write_report_for_exp_id(new_report_fname, new_report, exp_config, current_val_f1):
+    report_path = exp_config['checkpoint_path']
+    old_reports = [f.replace('.pkl', '') for
+                   f in os.listdir(report_path) if f.startswith("report_valf1_")]
+
+    to_consider_for_delete = []
+
+    for old_report in old_reports:
+        config = old_report.split("_")
+        old_exp_id = int(config[4])
+
+        if old_exp_id == exp_config['id']:
+            to_consider_for_delete.append(old_report)
+
+    # if there are no potentials to delete, just save the report and return
+    if len(to_consider_for_delete) == 0:
+        # save and return
+        with open(report_path + new_report_fname, "wb") as f:
+            pickle.dump(new_report, f)
+
+        logging.info("id_{} saved report to {}".format(exp_config['id'], new_report_fname))
+        return
+
+    # see whether to keep old report or new one
+    for old_report in to_consider_for_delete:
+        config = old_report.split("_")
+        old_val_f1 = float(config[2])
+
+        if current_val_f1 >= old_val_f1:  # if results are just as good, save because I'd like to see
+            # if the epochs advanced or not.
+            # delete old report and save new one and return
+            os.remove(report_path + old_report + '.pkl')  # delete
+            with open(report_path + new_report_fname, "wb") as f:  # save
+                pickle.dump(new_report, f)
+            logging.info("id_{} replaced report {} by {}".
+                         format(exp_config['id'], old_report, new_report_fname))
+            return
+
+        elif old_val_f1 > current_val_f1:
+            # no need to save anything.
+            return
+
+        else:
+            msg = "THIS SHOULD NOT HAPPEN... SOMETHING WENT WRONG"
+            logging.info(msg)
+            print msg
+            return
+
+
 def write_report(new_report_fname, new_report, exp_config, current_val_f1):
 
     # see if there is another file of the same consition as in ex_config
