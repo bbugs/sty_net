@@ -29,8 +29,8 @@ def run_experiment(exp_config):
     batch_data = get_batch_data(exp_config)
 
     logging.info("id_{} created new batch object".format(exp_config['id']))
-    solver = MultiModalSolver(mm_net, batch_data, EVAL_DATA_TRAIN, EVAL_DATA_VAL,
-                              NUM_ITEMS_TRAIN, exp_config, verbose=True)
+    solver = MultiModalSolver(mm_net, batch_data, EVAL_DATA_TRAIN, EVAL_DATA_VAL, NUM_ITEMS_TRAIN, exp_config,
+                              num_items_train=True, exp_config=null, verbose=True)
     print "starting to train id {}".format(exp_config['id'])
     solver.train()
 

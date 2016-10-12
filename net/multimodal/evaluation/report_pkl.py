@@ -70,11 +70,9 @@ mm_net.params['bsem'] = report['model']['bsem']
 # Setting the solver
 #############################################
 print "setting multimodal solver"
-solver = MultiModalSolver(model=mm_net, batch_data=None,
-                          eval_data_train=None, eval_data_val=None,
-                          eval_data_test=eval_data_test,
-                          eval_data_test_mwq=None,
-                          num_items_train=48689, exp_config=exp_config)
+solver = MultiModalSolver(model=mm_net, batch_data=None, eval_data_train=None, eval_data_val=None,
+                          eval_data_test=eval_data_test, eval_data_test_mwq=None, num_items_train=48689,
+                          exp_config=exp_config)
 
 print solver.ck_perform_ranking_img2txt_all_ks(eval_data_test, Ks=exp_config['Ks'])
 print solver.ck_perform_ranking_img2txt_all_ks(eval_data_val, Ks=exp_config['Ks'])

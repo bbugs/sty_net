@@ -37,9 +37,7 @@ mm_net = experiment.set_model(exp_config=test_data_config.exp_config)
 ##############################################
 # Train model with solver
 ##############################################
-solver = MultiModalSolver(mm_net, batch_data,
-                          eval_data_train, eval_data_val,
-                          eval_data_test, eval_data_test_mwq,
+solver = MultiModalSolver(mm_net, batch_data, eval_data_train, eval_data_val, eval_data_test, eval_data_test_mwq,
                           num_items_train, test_data_config.exp_config, verbose=True)
 
 solver.train()

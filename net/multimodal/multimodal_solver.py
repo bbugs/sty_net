@@ -12,9 +12,8 @@ class MultiModalSolver(object):
 
     """
 
-    def __init__(self, model, batch_data, eval_data_train, eval_data_val,
-                 eval_data_test, eval_data_test_mwq,
-                 num_items_train, exp_config, verbose=True):
+    def __init__(self, model, batch_data, eval_data_train, eval_data_val, eval_data_test, eval_data_test_mwq,
+                 num_items_train, exp_config, unimodal=False, verbose=True):
         """
         Construct a new Solver instance.
 
@@ -46,11 +45,15 @@ class MultiModalSolver(object):
         - verbose: Boolean; if set to false then no output will be printed during
           training.
 
+        Args:
+            unimodal:
+
         """
         self.model = model
         self.batch_data = batch_data
         self.num_items_train = num_items_train  # eval_data_train.X_img.shape[0]  # number of images in training set
         self.batch_size = self.batch_data.batch_size
+        self.unimodal = unimodal
 
         self.eval_data_train = eval_data_train
         self.eval_data_val = eval_data_val
@@ -287,7 +290,10 @@ class MultiModalSolver(object):
         rank_performance_t2i_val = self.ck_perform_ranking_txt2img_all_ks(self.eval_data_val, self.Ks)
         rank_performance_t2i_test = self.ck_perform_ranking_txt2img_all_ks(self.eval_data_test, self.Ks)
 
-        rank_performance_mwq_t2i_test = self.ck_perform_ranking_txt2img_all_ks(self.eval_data_test_mwq, self.Ks)
+        if not self.unimodal:
+            rank_performance_mwq_t2i_test = self.ck_perform_ranking_txt2img_all_ks(self.eval_data_test_mwq, self.Ks)
+        else:
+            rank_performance_mwq_t2i_test = None
 
         performance = {}
         performance['classification'] = {}
@@ -361,13 +367,14 @@ class MultiModalSolver(object):
             msg += '\n'
         # msg += '\n'
 
-        task = 't2i'
-        split = 'mwq_test'
-        for k in ks:
-            P, R, F = self.get_P_R_F_from_performance(performance, mode, task=task, split=split, K=k)
-            msg += "{0} {1} \t P{2} {3:.1f} \t R{2} {4:.1f} \t".\
-                format(task, split, k, P, R, )
-        msg += '\n\n'
+        if not self.unimodal:
+            task = 't2i'
+            split = 'mwq_test'
+            for k in ks:
+                P, R, F = self.get_P_R_F_from_performance(performance, mode, task=task, split=split, K=k)
+                msg += "{0} {1} \t P{2} {3:.1f} \t R{2} {4:.1f} \t".\
+                    format(task, split, k, P, R, )
+            msg += '\n\n'
 
         mode = 'classification'
         msg += 'classif' + '\n'
@@ -465,7 +472,10 @@ class MultiModalSolver(object):
                 t2i_test_prec_at_eval_k = 100 * performance['ranking']['t2i']['test']['P'][self.eval_k]
                 t2i_test_recall_at_eval_k = 100 * performance['ranking']['t2i']['test']['R'][self.eval_k]
 
-                t2i_mwq_test_recall_at_eval_k = 100 * performance['ranking']['t2i']['mwq_test']['R'][self.eval_k]
+                if not self.unimodal:
+                    t2i_mwq_test_recall_at_eval_k = 100 * performance['ranking']['t2i']['mwq_test']['R'][self.eval_k]
+                else:
+                    t2i_mwq_test_recall_at_eval_k = 0.0000
 
                 # TODO: is check_performance compatible with associat_loss?
 
