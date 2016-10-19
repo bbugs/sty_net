@@ -52,7 +52,7 @@ class MultiModalSolver(object):
         self.model = model
         self.batch_data = batch_data
         self.num_items_train = num_items_train  # eval_data_train.X_img.shape[0]  # number of images in training set
-        self.batch_size = self.batch_data.batch_size
+        self.batch_size = exp_config['batch_size']
         self.unimodal = unimodal
 
         self.eval_data_train = eval_data_train

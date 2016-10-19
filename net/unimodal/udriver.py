@@ -70,11 +70,6 @@ def main(main_args):
     exp_config['use_finetune_w2v'] = False
     exp_config['update_rule'] = 'sgd'
 
-    exp_config['reg'] = 10 ** random.uniform(-10, -6)  # regularization
-    exp_config['learning_rate'] = 10 ** random.uniform(-8, -2)  # learning rate
-
-    exp_config['hidden_dim'] = random.sample(HIDDEN_DIMS, 1)[0]  # choose one
-
     exp_config['optim_config'] = {'learning_rate': exp_config['learning_rate']}
 
     ##############################################
@@ -84,6 +79,11 @@ def main(main_args):
     batch_data = get_batch_data(exp_config)
 
     for i in range(exp_config['num_exps']):
+        exp_config['reg'] = 10 ** random.uniform(-10, -6)  # regularization
+        exp_config['learning_rate'] = 10 ** random.uniform(-8, -2)  # learning rate
+
+        exp_config['hidden_dim'] = random.sample(HIDDEN_DIMS, 1)[0]  # choose one
+
         exp_config['id'] = i
         msg = "Experiment {} out of {}".format(i+1, exp_config['num_exps'])
         logging.info(msg)
