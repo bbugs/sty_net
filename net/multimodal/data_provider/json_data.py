@@ -73,7 +73,7 @@ class JsonFile(object):
             raise ValueError("reduce number of imgs, json file has {} items".format(len(self.img_ids)))
 
         # random_img_ids = np.random.choice(self.img_ids, num_imgs, replace=False)  DO NOT USE THIS. IT's NOT RANDOM
-        random_img_ids = np.asarray(random.sample(self.img_ids, num_imgs))
+        random_img_ids = np.asarray(random.sample(self.img_ids, num_imgs))  #todo check at some point that the image has some words
         return random_img_ids
 
     def get_item_from_img_id(self, target_img_id):
