@@ -169,7 +169,7 @@ class JsonFile(object):
         """
 
         self.json2txt_file("tmp.txt")  # save a temp file with all the text
-        with open("tmp.txt", 'r') as f:
+        with open("tmp.txt", 'r') as f:  # TODO: add unique time to name tmp.txt to avoid conflicts with the file
             txt = f.read()
 
         os.remove("tmp.txt")  # remove temp file

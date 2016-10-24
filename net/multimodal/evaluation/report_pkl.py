@@ -15,6 +15,7 @@ ckpoint_path = '/Users/susanaparis/Documents/Belgium/Chapter4/data/fashion53k/pr
 # fname = ckpoint_path + 'report_valf1_0.1166_id_41_hd_500_l_1.0_g_0.0_a_0.0_e_0_p_0.2041_r_0.3163.pkl'
 fname = ckpoint_path + 'report_valf1_0.1166_id_46_hd_800_l_1.0_g_0.0_a_0.0_e_0_p_0.2057_r_0.3160.pkl'
 # fname = ckpoint_path + 'id_6_end_report_2016_10_05_0110_tr_0.0576_val_0.0622.pkl'
+# fname = ckpoint_path + 'report_valf1_0.1323_id_95_hd_500_l_0.0_g_0.0_a_1.0_e_0_p_0.2358_r_0.3553.pkl'
 
 with open(fname, "rb") as f:
     report = pickle.load(f)
@@ -22,9 +23,10 @@ with open(fname, "rb") as f:
 print report['model'].keys()
 
 exp_config = report['exp_config']
-exp_config['Ks'] = [1, 5, 10, 20]
+exp_config['Ks'] = [1, 5, 10, 20, 30, 50, 100]
 exp_config['eval_k'] = 10
-
+exp_config['associat_margin'] = 1.  # not in report
+exp_config['ck_perform_every'] = 20
 
 #############################################
 # Set eval data for TEST
@@ -56,6 +58,19 @@ eval_data_val = EvaluationData(json_fname=exp_config['json_path_val'],
                                subset_num_items=-1)
 
 #############################################
+# Set eval data for TEST MWQ
+#############################################
+eval_data_test_mwq = EvaluationDataMWQ(json_fname=exp_config['json_path_test'],
+                                       cnn_fname=exp_config['cnn_full_img_path_test'],
+                                       img_id2cnn_region_indeces=imgid2region_indices_test,
+                                       w2v_vocab_fname=exp_config['word2vec_vocab'],
+                                       w2v_vectors_fname=exp_config['word2vec_vectors'],
+                                       external_vocab_fname=exp_config['external_vocab'],
+                                       mwq_aggregator=exp_config['mwq_aggregator'],
+                                       subset_num_items=-1)
+
+
+#############################################
 # Setting the model
 #############################################
 print "setting the model"
@@ -74,11 +89,18 @@ solver = MultiModalSolver(model=mm_net, batch_data=None, eval_data_train=None, e
                           eval_data_test=eval_data_test, eval_data_test_mwq=None, num_items_train=48689,
                           exp_config=exp_config)
 
+print "i2t test:"
 print solver.ck_perform_ranking_img2txt_all_ks(eval_data_test, Ks=exp_config['Ks'])
+print "i2t val:"
 print solver.ck_perform_ranking_img2txt_all_ks(eval_data_val, Ks=exp_config['Ks'])
 
 t2i_performance = solver.ck_perform_ranking_txt2img_all_ks(eval_data_test, Ks=exp_config['Ks'])
+print "t2i test:"
 print t2i_performance
+
+t2i_mwq_performance = solver.ck_perform_ranking_txt2img_all_ks(eval_data_test_mwq, Ks=exp_config['Ks'])
+print "t2i test mwq:"
+print t2i_mwq_performance
 
 # eval_data_test_mwq = EvaluationDataMWQ(json_fname_test, cnn_fname_test, imgid2region_indices_test,
 #                                        w2v_vocab_fname, w2v_vectors_fname,
@@ -95,47 +117,49 @@ print t2i_performance
 
 
 # Plot loss
-loss = report['loss_history']
-print len(report['loss_history'])
-x = [i for i in range(len(loss))]
-line, = plt.plot(x, loss, 'x', linewidth=2)
-plt.show()  # uncomment to see plot
 
-perform_history = report['performance_history']
+if False:
+    loss = report['loss_history']
+    print len(report['loss_history'])
+    x = [i for i in range(len(loss))]
+    line, = plt.plot(x, loss, 'x', linewidth=2)
+    # plt.show()  # uncomment to see plot
 
-# fname = ckpoint_path + 'end_report_2016_09_18_0312_tr_0.0603_val_0.0753.pkl'
-# with open(fname, "rb") as f:
-#     end_report = pickle.load(f)
+    perform_history = report['performance_history']
 
-# end_report.keys()
-# Out[3]: ['img2txt', 'loss_history', 'txt2img', 'iter', 'exp_config', 'epoch', 'model']
+    # fname = ckpoint_path + 'end_report_2016_09_18_0312_tr_0.0603_val_0.0753.pkl'
+    # with open(fname, "rb") as f:
+    #     end_report = pickle.load(f)
 
-test_p = []
-for item in report['performance_history']:
-    p = item[1]['ranking']['i2t']['test']['R'][10]
-    test_p.append(p)
+    # end_report.keys()
+    # Out[3]: ['img2txt', 'loss_history', 'txt2img', 'iter', 'exp_config', 'epoch', 'model']
 
-x = [i for i in range(len(test_p))]
-plt.plot(x, test_p, '-')
-plt.show()
+    test_p = []
+    for item in report['performance_history']:
+        p = item[1]['ranking']['i2t']['test']['R'][10]
+        test_p.append(p)
 
-test_p = []
-for item in report['performance_history']:
-    p = item[1]['ranking']['i2t']['val']['R'][10]
-    test_p.append(p)
+    x = [i for i in range(len(test_p))]
+    plt.plot(x, test_p, '-')
+    # plt.show()
 
-x = [i for i in range(len(test_p))]
-plt.plot(x, test_p, '-')
-plt.show()
+    test_p = []
+    for item in report['performance_history']:
+        p = item[1]['ranking']['i2t']['val']['R'][10]
+        test_p.append(p)
 
-test_p = []
-for item in report['performance_history']:
-    p = item[1]['ranking']['i2t']['train']['R'][10]
-    test_p.append(p)
+    x = [i for i in range(len(test_p))]
+    plt.plot(x, test_p, '-')
+    # plt.show()
 
-x = [i for i in range(len(test_p))]
-plt.plot(x, test_p, '-')
-plt.show()
+    test_p = []
+    for item in report['performance_history']:
+        p = item[1]['ranking']['i2t']['train']['R'][10]
+        test_p.append(p)
+
+    x = [i for i in range(len(test_p))]
+    plt.plot(x, test_p, '-')
+    # plt.show()
 
 
 print "here"
