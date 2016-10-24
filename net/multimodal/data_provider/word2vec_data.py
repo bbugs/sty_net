@@ -50,12 +50,7 @@ class Word2VecData(object):
         i = 0
         for word in word_list:
             if word not in word2id:
-                # if word is not in word2vec, then assign a very common word "the" vector
-                X_txt[i, :] = np.fromstring(linecache.getline(self.w2v_vectors_fname, 1), sep=" ")
-                # print word, " not in word2vec"
-                i += 1
-                continue
-
+                raise ValueError("word should be in w2v vocab by constructiton. Something went wrong")
             w_id = word2id[word]
             # X_txt[i, :] = self.word2vec_vectors[w_id, :]
             # Note that linecache line numbers start at 1.
