@@ -10,12 +10,18 @@ from net.multimodal.evaluation import metrics
 import json
 
 
+# Load Katrien's weights
+import scipy.io as sio
+k_weights = sio.loadmat('../katrien_stuff/Data_v2/weights_only_zappos_words.mat')
+Wi2s = k_weights['Wi2s'][:, 0:4096].T  # (1000, 4097)
+bi2s = k_weights['Wi2s'][:, -1]
+Wsem = k_weights['Wsem'][:, 0:200].T  # (1000, 201)
+bsem = k_weights['Wsem'][:, -1]
+
+# Load a report just to have the main required stuff
 ckpoint_path = '/Users/susanaparis/Documents/Belgium/Chapter4/data/fashion53k/promising_reports/paris/'
-# fname = ckpoint_path + 'report_valf1_0.0420_id_41_hd_800_l_1.0_g_0.0_a_0.0_e_17_p_0.0771_r_0.1017.pkl'
-# fname = ckpoint_path + 'report_valf1_0.1166_id_41_hd_500_l_1.0_g_0.0_a_0.0_e_0_p_0.2041_r_0.3163.pkl'
 fname = ckpoint_path + 'report_valf1_0.1166_id_46_hd_800_l_1.0_g_0.0_a_0.0_e_0_p_0.2057_r_0.3160.pkl'
-# fname = ckpoint_path + 'id_6_end_report_2016_10_05_0110_tr_0.0576_val_0.0622.pkl'
-# fname = ckpoint_path + 'report_valf1_0.1323_id_95_hd_500_l_0.0_g_0.0_a_1.0_e_0_p_0.2358_r_0.3553.pkl'
+
 
 with open(fname, "rb") as f:
     report = pickle.load(f)
@@ -23,10 +29,11 @@ with open(fname, "rb") as f:
 print report['model'].keys()
 
 exp_config = report['exp_config']
-exp_config['Ks'] = [1, 5, 10, 20, 30, 50, 100]
+exp_config['Ks'] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 30, 40, 50, 100, 200, 300, 400, 500, 1000]
 exp_config['eval_k'] = 10
 exp_config['associat_margin'] = 1.  # not in report
 exp_config['ck_perform_every'] = 20
+
 
 exp_config['external_vocab'] = '../data/fashion53k/data_bundles/data_bundle_100/zappos.w2v.vocab.txt'
 exp_config['word2vec_vocab'] = '../data/fashion53k/data_bundles/data_bundle_100/w2v.vocab.txt'
@@ -82,10 +89,10 @@ eval_data_val = EvaluationData(json_fname=exp_config['json_path_val'],
 print "setting the model"
 mm_net = experiment.set_model(exp_config)
 # Use weigths from the report instead of random init weights
-mm_net.params['Wi2s'] = report['model']['Wi2s']
-mm_net.params['bi2s'] = report['model']['bi2s']
-mm_net.params['Wsem'] = report['model']['Wsem']
-mm_net.params['bsem'] = report['model']['bsem']
+mm_net.params['Wi2s'] = Wi2s  # put katrien's weights in
+mm_net.params['bi2s'] = bi2s
+mm_net.params['Wsem'] = Wsem
+mm_net.params['bsem'] = bsem
 
 #############################################
 # Setting the solver
@@ -96,13 +103,25 @@ solver = MultiModalSolver(model=mm_net, batch_data=None, eval_data_train=None, e
                           exp_config=exp_config)
 
 print "i2t test:"
-print solver.ck_perform_ranking_img2txt_all_ks(eval_data_test, Ks=exp_config['Ks'])
-print "i2t val:"
-print solver.ck_perform_ranking_img2txt_all_ks(eval_data_val, Ks=exp_config['Ks'])
+i2t_performance = solver.ck_perform_ranking_img2txt_all_ks(eval_data_test, Ks=exp_config['Ks'])
+for K in exp_config['Ks']:
+    print "{} \t {:.4f} \t {:.4f}".format(K, 100*i2t_performance['P'][K], 100*i2t_performance['R'][K])
 
-t2i_performance = solver.ck_perform_ranking_txt2img_all_ks(eval_data_test, Ks=exp_config['Ks'])
+raw_input("press key to continue")
+
+
 print "t2i test:"
-print t2i_performance
+t2i_performance = solver.ck_perform_ranking_txt2img_all_ks(eval_data_test, Ks=exp_config['Ks'])
+for K in exp_config['Ks']:
+    print "{} \t {:.4f} \t {:.4f}".format(K, 100*t2i_performance['P'][K], 100*t2i_performance['R'][K])
+
+
+
+
+
+# print "i2t val:"
+# print solver.ck_perform_ranking_img2txt_all_ks(eval_data_val, Ks=exp_config['Ks'])
+
 
 # t2i_mwq_performance = solver.ck_perform_ranking_txt2img_all_ks(eval_data_test_mwq, Ks=exp_config['Ks'])
 # print "t2i test mwq:"
