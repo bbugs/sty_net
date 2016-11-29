@@ -8,8 +8,8 @@ df = pandas.read_csv(fname, delim_whitespace=True)
 
 models = ['a0', 'a5', 'a1', 'unimodal']
 
-# measure = 'precision'
-measure = 'recall'
+measure = 'precision'
+# measure = 'recall'
 line_types = ['gs-', 'm^-', 'b8-', 'ko--']
 labels = ['assoc.', 'local + assoc. loss', 'local loss', 'classification']
 fig, ax = plt.subplots()

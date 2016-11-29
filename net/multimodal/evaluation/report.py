@@ -13,11 +13,15 @@ class Report(object):
 
     """
 
-    def __init__(self, fname):
+    def __init__(self, fname, exp_config=None):
 
         self.fname = fname
         self._load_report()
-        self._set_exp_config()
+        self._set_exp_config()  # set exp_config from report
+
+        if exp_config is not None:
+            self.exp_config.update(exp_config)  # update exp_config if a different exp_config is provided
+
         self._set_eval_data()
         self._set_model()
         self._set_solver()
@@ -79,7 +83,7 @@ class Report(object):
             performance = self.solver.ck_perform_ranking_img2txt_all_ks(self.eval_data_test, Ks=[K])
 
         elif task == 't2i':
-            performance = self.solver.ck_perform_ranking_img2txt_all_ks(self.eval_data_test, Ks=[K])
+            performance = self.solver.ck_perform_ranking_txt2img_all_ks(self.eval_data_test, Ks=[K])
         else:
             raise ValueError
 
@@ -117,9 +121,9 @@ if __name__ == '__main__':
     # fnames.append(ckpoint_path + 'report_valf1_8.86_id_76_hd_800_l_1.0_g_0.0_a_0.0_e_1_p_14.67_r_23.31_p_4.17_r_1.77_r_1.50_it_80_p_14.44_r_24.57_p_4.48_r_0.64.pkl')
 
 
-    # models = ['l1', 'l5', 'a1']
+    models = ['l1', 'l5', 'a1']
     print "n files: ", len(fnames)
-    models = ['a1', 'a5', 'a0']
+    # models = ['a1', 'a5', 'a0']
     assert len(fnames) == len(models)
     i = 0
     for fname in fnames:

@@ -2,15 +2,16 @@ import pandas
 import matplotlib.pyplot as plt
 import numpy as np
 
-fname = '../data/fashion53k/result_summary.txt'
+# fname = '../data/fashion53k/result_summary.txt'
+fname = '../data/fashion53k/promising_reports/for_paper_v2/summary.txt'
 
 df = pandas.read_csv(fname, delim_whitespace=True)
 
 # print df[df.model =='freq']
 
 models = ['l1', 'l5', 'a1', 'unimodal']
-# measure = 'precision'
-measure = 'recall'
+measure = 'precision'
+# measure = 'recall'
 line_types = ['g8-', 'g^--', 'b8-', 'b^--',  'kx--', 'kx--']
 labels = ['l1', 'l5', 'a1', 'unimodal']
 fig, ax = plt.subplots()

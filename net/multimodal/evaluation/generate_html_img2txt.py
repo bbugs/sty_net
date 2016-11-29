@@ -15,7 +15,7 @@ alpha = '0.12'
 
 ckpoint_path = '../data/fashion53k/result_plots/'
 
-fname = ckpoint_path + 'words_pred.json'
+fname = ckpoint_path + 'words_pred_katrien.json'
 
 
 template = """<div class="row rnndemo">

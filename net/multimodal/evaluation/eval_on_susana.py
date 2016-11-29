@@ -88,6 +88,7 @@ mm_net.params['bi2s'] = report['model']['bi2s']
 mm_net.params['Wsem'] = report['model']['Wsem']
 mm_net.params['bsem'] = report['model']['bsem']
 
+# seave weights so Katrien can evaluate them
 sio.savemat('../data/weights_a5.mat',
             {'Wi2s': report['model']['Wi2s'],
              'bi2s': report['model']['bi2s'],

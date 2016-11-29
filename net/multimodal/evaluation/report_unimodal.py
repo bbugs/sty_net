@@ -4,8 +4,8 @@ from net.unimodal import unimodal_net
 
 class ReportUnimodal(Report):
 
-    def __init__(self, fname):
-        Report.__init__(self, fname)
+    def __init__(self, fname, exp_config=None):
+        Report.__init__(self, fname, exp_config=exp_config)
 
 
     def _set_model(self):
@@ -22,19 +22,21 @@ class ReportUnimodal(Report):
 
 
 if __name__ == '__main__':
-    ckpoint_path = '/Users/susanaparis/Documents/Belgium/Chapter4/data/fashion53k/promising_reports/paris/'
+    # ckpoint_path = '/Users/susanaparis/Documents/Belgium/Chapter4/data/fashion53k/promising_reports/paris/'
+    ckpoint_path = '/Users/susanaparis/Documents/Belgium/Chapter4/data/fashion53k/promising_reports/for_paper/'
 
     fnames = []
-    fnames.append(ckpoint_path + 'report_valf1_6.38_id_3_hd_800_l_0.0_g_0.0_a_0.0_e_1_p_10.27_r_17.37_p_2.91_r_1.43_r_0.00_it_20_p_10.31_r_18.58_p_2.29_r_0.71.pkl')
+    # fnames.append(ckpoint_path + 'report_valf1_6.38_id_3_hd_800_l_0.0_g_0.0_a_0.0_e_1_p_10.27_r_17.37_p_2.91_r_1.43_r_0.00_it_20_p_10.31_r_18.58_p_2.29_r_0.71.pkl')
+    fnames.append(ckpoint_path + 'report_valf1_7.09_id_67_hd_100_l_0.0_g_0.0_a_0.0_e_3_p_11.49_r_19.24_p_3.89_r_1.34_r_0.00_it_620_p_11.23_r_20.15_p_3.44_r_0.82.pkl')
 
     models = ['unimodal']
 
     i = 0
     for fname in fnames:
-        r = ReportUnimodal(fname=fname)
+        r = ReportUnimodal(fname=fname, exp_config=None)
         exp = 'i2t'
         model = models[i]
-        Ks = [1, 2, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 30, 40, 50, 100, 200, 500, 1000]
+        Ks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 30, 40, 50, 100, 200, 500, 1000]
         print "experiment\t model\t K \t precision\t recall\t f1\t "
 
         for K in Ks:
